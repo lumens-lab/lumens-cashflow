@@ -1,16 +1,43 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { PhoneFrame } from "@/components/finance/PhoneFrame";
+import { StatusBar } from "@/components/finance/StatusBar";
+import { BottomNav, type Tab } from "@/components/finance/BottomNav";
+import { HomeScreen } from "@/components/finance/HomeScreen";
+import { ScanScreen } from "@/components/finance/ScanScreen";
+import { CashflowScreen } from "@/components/finance/CashflowScreen";
+import { RecordsScreen } from "@/components/finance/RecordsScreen";
+import { ProfileScreen } from "@/components/finance/ProfileScreen";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [tab, setTab] = useState<Tab>("home");
+  const [scanOpen, setScanOpen] = useState(false);
+
+  const handleNav = (t: Tab) => {
+    if (t === "scan") {
+      setScanOpen(true);
+      return;
+    }
+    setTab(t);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <main>
+      <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+      <PhoneFrame>
+        <StatusBar />
+        <div className="absolute inset-0 pt-[44px]">
+          {tab === "home" && <HomeScreen onScan={() => setScanOpen(true)} />}
+          {tab === "cashflow" && <CashflowScreen />}
+          {tab === "wallet" && <RecordsScreen />}
+          {tab === "profile" && <ProfileScreen />}
+        </div>
+
+        {scanOpen && <ScanScreen onClose={() => setScanOpen(false)} />}
+
+        <BottomNav active={tab} onChange={handleNav} />
+      </PhoneFrame>
+    </main>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
