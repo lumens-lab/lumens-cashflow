@@ -14,10 +14,10 @@ export const HomeScreen = ({ onScan }: { onScan: () => void }) => (
       <div className="flex items-center justify-between px-5 pt-3 pb-2">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl gradient-primary-bg flex items-center justify-center shadow-[0_4px_16px_hsl(var(--primary)/0.4)]">
-            <span className="font-syne font-bold text-sm text-primary-foreground">L</span>
+            <span className="font-redhat font-semibold text-[11px] text-primary-foreground lowercase">lumens</span>
           </div>
-          <span className="font-syne text-[11px] font-bold tracking-[0.18em] text-muted-foreground uppercase">
-            Lumens
+          <span className="font-redhat text-[14px] font-medium tracking-tight text-foreground lowercase">
+            lumens
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -26,7 +26,7 @@ export const HomeScreen = ({ onScan }: { onScan: () => void }) => (
             <span className="absolute w-2 h-2 rounded-full bg-primary translate-x-2 -translate-y-2" />
           </button>
           <div className="w-10 h-10 rounded-xl gradient-primary-bg flex items-center justify-center">
-            <span className="font-syne text-[11px] font-bold text-primary-foreground">MC</span>
+            <span className="font-syne text-[11px] font-bold text-primary-foreground">WW</span>
           </div>
         </div>
       </div>
@@ -34,7 +34,7 @@ export const HomeScreen = ({ onScan }: { onScan: () => void }) => (
       {/* Greeting */}
       <div className="px-5 pt-2 pb-4">
         <p className="text-xs text-muted-foreground">Good morning</p>
-        <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">Michael Chen</h1>
+        <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">Wilson Wuver</h1>
       </div>
 
       {/* Balance Hero - Glass card */}

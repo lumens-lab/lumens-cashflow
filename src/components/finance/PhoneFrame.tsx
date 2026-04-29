@@ -11,7 +11,7 @@ export const PhoneFrame = ({ children }: { children: ReactNode }) => (
       className="relative w-[390px] h-[844px] max-h-[95vh] rounded-[44px] overflow-hidden bg-background"
       style={{
         boxShadow:
-          "0 0 0 1px rgba(255,255,255,0.06), 0 0 0 10px hsl(240 22% 6%), 0 0 0 11px rgba(255,255,255,0.04), 0 40px 120px rgba(0,0,0,0.8), 0 0 80px hsl(252 96% 67% / 0.15)",
+          "0 0 0 1px rgba(0,0,0,0.06), 0 0 0 10px hsl(220 20% 92%), 0 0 0 11px rgba(0,0,0,0.08), 0 40px 120px hsl(220 50% 30% / 0.25), 0 0 80px hsl(220 100% 50% / 0.18)",
       }}
     >
       {/* Dynamic island */}

@@ -26,10 +26,10 @@ export const ProfileScreen = () => (
           <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/30 blur-3xl pointer-events-none" />
           <div className="relative">
             <div className="w-20 h-20 rounded-2xl gradient-primary-bg flex items-center justify-center shadow-[0_12px_32px_hsl(var(--primary)/0.5)]">
-              <span className="font-syne text-2xl font-bold text-primary-foreground">MC</span>
+              <span className="font-syne text-2xl font-bold text-primary-foreground">WW</span>
             </div>
-            <h2 className="font-syne text-[20px] font-bold text-foreground mt-3">Michael Chen</h2>
-            <p className="text-[12px] text-muted-foreground mt-0.5">michael@lumens.app</p>
+            <h2 className="font-syne text-[20px] font-bold text-foreground mt-3">Wilson Wuver</h2>
+            <p className="text-[12px] text-muted-foreground mt-0.5">wilson@lumens.app</p>
             <div className="mt-4 inline-flex items-center gap-1.5 bg-primary/15 border border-primary/30 px-3 py-1 rounded-full">
               <div className="w-1.5 h-1.5 rounded-full bg-primary-glow animate-pulse-ring" />
               <span className="font-syne text-[10px] font-bold uppercase tracking-wider text-primary-glow">
