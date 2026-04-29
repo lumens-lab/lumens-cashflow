@@ -2,58 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Red+Hat+Display:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    --background: 240 20% 4%;
-    --foreground: 240 20% 93%;
+    --background: 0 0% 100%;
+    --foreground: 220 25% 12%;
 
-    --card: 240 22% 7%;
-    --card-foreground: 240 20% 93%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 12%;
 
-    --popover: 240 22% 7%;
-    --popover-foreground: 240 20% 93%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 12%;
 
-    --primary: 252 96% 67%;
+    --primary: 220 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 252 96% 75%;
-    --primary-deep: 252 70% 55%;
+    --primary-glow: 215 100% 60%;
+    --primary-deep: 225 95% 42%;
 
-    --secondary: 240 22% 12%;
-    --secondary-foreground: 240 20% 93%;
+    --secondary: 220 30% 96%;
+    --secondary-foreground: 220 25% 12%;
 
-    --muted: 240 22% 10%;
-    --muted-foreground: 240 14% 50%;
-    --muted-foreground-2: 240 14% 35%;
+    --muted: 220 25% 96%;
+    --muted-foreground: 220 15% 45%;
+    --muted-foreground-2: 220 15% 30%;
 
-    --accent: 252 96% 67%;
+    --accent: 220 100% 50%;
     --accent-foreground: 0 0% 100%;
-    --accent-soft: 252 96% 67% / 0.12;
+    --accent-soft: 220 100% 50% / 0.12;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
+    --success: 142 71% 42%;
     --warning: 38 92% 50%;
 
-    --border: 0 0% 100% / 0.07;
-    --border-strong: 0 0% 100% / 0.14;
-    --input: 240 22% 12%;
-    --ring: 252 96% 67%;
+    --border: 220 20% 0% / 0.08;
+    --border-strong: 220 20% 0% / 0.12;
+    --input: 220 25% 96%;
+    --ring: 220 100% 50%;
 
     --radius: 1rem;
 
     /* Gradients */
-    --gradient-card: linear-gradient(135deg, hsl(240 40% 14%) 0%, hsl(220 50% 18%) 50%, hsl(215 80% 22%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(252 96% 67%) 0%, hsl(265 90% 60%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-    --gradient-bg: radial-gradient(ellipse at top, hsl(252 60% 12%) 0%, hsl(240 30% 5%) 50%, hsl(240 20% 3%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(220 100% 97%) 0%, hsl(215 100% 95%) 50%, hsl(210 100% 92%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(220 100% 50%) 0%, hsl(210 100% 55%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.55) 100%);
+    --gradient-bg: radial-gradient(ellipse at top, hsl(220 100% 97%) 0%, hsl(0 0% 100%) 50%, hsl(220 30% 98%) 100%);
 
     /* Shadows */
-    --shadow-glass: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
-    --shadow-glow: 0 0 40px hsl(252 96% 67% / 0.25);
-    --shadow-card: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px hsl(252 96% 67% / 0.08);
+    --shadow-glass: 0 8px 32px hsl(220 50% 30% / 0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+    --shadow-glow: 0 0 40px hsl(220 100% 50% / 0.25);
+    --shadow-card: 0 20px 60px hsl(220 50% 30% / 0.12), 0 0 40px hsl(220 100% 50% / 0.08);
   }
 }
 
@@ -70,6 +70,7 @@
 @layer utilities {
   .font-syne { font-family: 'Montserrat', sans-serif; }
   .font-mono-jb { font-family: 'Montserrat', sans-serif; }
+  .font-redhat { font-family: 'Red Hat Display', sans-serif; }
 
   .glass {
     background: var(--gradient-glass);
@@ -79,14 +80,14 @@
     box-shadow: var(--shadow-glass);
   }
   .glass-strong {
-    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 100%);
     backdrop-filter: blur(32px) saturate(200%);
     -webkit-backdrop-filter: blur(32px) saturate(200%);
     border: 1px solid hsl(var(--border-strong));
     box-shadow: var(--shadow-glass);
   }
   .glass-subtle {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255,255,255,0.6);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid hsl(var(--border));
@@ -98,7 +99,7 @@
     background: var(--gradient-primary);
   }
   .text-balance-glow {
-    text-shadow: 0 0 30px hsl(var(--primary) / 0.4);
+    text-shadow: 0 0 30px hsl(var(--primary) / 0.25);
   }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
