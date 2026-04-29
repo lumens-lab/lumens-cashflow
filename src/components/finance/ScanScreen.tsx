@@ -5,7 +5,7 @@ export const ScanScreen = ({ onClose }: { onClose: () => void }) => (
     {/* Camera viewport */}
     <div className="relative flex-1 overflow-hidden">
       {/* Faux camera background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(240_30%_8%)] via-[hsl(252_40%_12%)] to-[hsl(240_30%_5%)]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220_30%_92%)] via-[hsl(215_60%_88%)] to-[hsl(220_40%_94%)]" />
       <div
         className="absolute inset-0 opacity-30"
         style={{

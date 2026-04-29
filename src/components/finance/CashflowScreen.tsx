@@ -183,7 +183,7 @@ export const CashflowScreen = () => {
                         cy={p.y}
                         r="3"
                         fill="hsl(252 96% 75%)"
-                        stroke="hsl(240 22% 7%)"
+                        stroke="hsl(0 0% 100%)"
                         strokeWidth="1.5"
                       />
                     </g>
