@@ -7,7 +7,7 @@ const items: { id: Tab; label: string; Icon: typeof Home }[] = [
   { id: "cashflow", label: "Flow", Icon: BarChart3 },
   { id: "scan", label: "Scan", Icon: ScanLine },
   { id: "wallet", label: "Wallet", Icon: Wallet },
-  { id: "profile", label: "Me", Icon: User },
+  { id: "profile", label: "Profile", Icon: User },
 ];
 
 export const BottomNav = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) => (

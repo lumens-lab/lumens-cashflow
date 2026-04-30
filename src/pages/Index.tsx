@@ -7,6 +7,8 @@ import { ScanScreen } from "@/components/finance/ScanScreen";
 import { CashflowScreen } from "@/components/finance/CashflowScreen";
 import { RecordsScreen } from "@/components/finance/RecordsScreen";
 import { ProfileScreen } from "@/components/finance/ProfileScreen";
+import { TransactionsProvider } from "@/components/finance/TransactionsContext";
+import { ThemeProvider } from "@/components/finance/ThemeContext";
 
 const Index = () => {
   const [tab, setTab] = useState<Tab>("home");
@@ -21,22 +23,26 @@ const Index = () => {
   };
 
   return (
-    <main>
-      <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
-      <PhoneFrame>
-        <StatusBar />
-        <div className="absolute inset-0 pt-[44px]">
-          {tab === "home" && <HomeScreen onScan={() => setScanOpen(true)} />}
-          {tab === "cashflow" && <CashflowScreen />}
-          {tab === "wallet" && <RecordsScreen />}
-          {tab === "profile" && <ProfileScreen />}
-        </div>
+    <ThemeProvider>
+      <TransactionsProvider>
+        <main>
+          <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+          <PhoneFrame>
+            <StatusBar />
+            <div className="absolute inset-0 pt-[44px]">
+              {tab === "home" && <HomeScreen onScan={() => setScanOpen(true)} onProfile={() => setTab("profile")} />}
+              {tab === "cashflow" && <CashflowScreen />}
+              {tab === "wallet" && <RecordsScreen />}
+              {tab === "profile" && <ProfileScreen />}
+            </div>
 
-        {scanOpen && <ScanScreen onClose={() => setScanOpen(false)} />}
+            {scanOpen && <ScanScreen onClose={() => setScanOpen(false)} />}
 
-        <BottomNav active={tab} onChange={handleNav} />
-      </PhoneFrame>
-    </main>
+            <BottomNav active={tab} onChange={handleNav} />
+          </PhoneFrame>
+        </main>
+      </TransactionsProvider>
+    </ThemeProvider>
   );
 };
 
