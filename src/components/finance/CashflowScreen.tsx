@@ -271,7 +271,7 @@ export const CashflowScreen = () => {
               <ArrowUpRight className="w-3.5 h-3.5 text-success" />
             </div>
             <p className="font-mono-jb text-[18px] font-semibold text-foreground">
-              ${totals.income.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              {format(convert(totals.income, mainCurrency, displayCurrency), displayCurrency)}
             </p>
             <div className="h-1 bg-muted rounded-full mt-3 overflow-hidden">
               <div className="h-full bg-success rounded-full animate-bar" style={{ width: `${Math.min(100, (totals.income / Math.max(1, totals.income + totals.expense)) * 100)}%` }} />
@@ -283,7 +283,7 @@ export const CashflowScreen = () => {
               <ArrowUpRight className="w-3.5 h-3.5 text-destructive rotate-90" />
             </div>
             <p className="font-mono-jb text-[18px] font-semibold text-foreground">
-              ${totals.expense.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              {format(convert(totals.expense, mainCurrency, displayCurrency), displayCurrency)}
             </p>
             <div className="h-1 bg-muted rounded-full mt-3 overflow-hidden">
               <div className="h-full bg-destructive rounded-full animate-bar" style={{ width: `${Math.min(100, (totals.expense / Math.max(1, totals.income + totals.expense)) * 100)}%` }} />

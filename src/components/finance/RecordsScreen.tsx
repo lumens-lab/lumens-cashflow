@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Plus, ArrowDown, ArrowUp, Search, Filter } from "lucide-react";
 import { Transaction, useTransactions } from "./TransactionsContext";
+import { useSettings } from "./SettingsContext";
 import { AddTransactionModal } from "./AddTransactionModal";
 
 type Tab = "all" | "income" | "expense";
