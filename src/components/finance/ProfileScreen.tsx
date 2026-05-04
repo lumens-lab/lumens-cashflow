@@ -46,21 +46,23 @@ const items: { id: Page; Icon: typeof Settings; label: string; hint: string }[] 
   { id: "help", Icon: HelpCircle, label: "Help & Support", hint: "FAQs, contact" },
 ];
 
-export const ProfileScreen = () => {
-  const [page, setPage] = useState<Page>("main");
+export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } = {}) => {
+  const [page, setPage] = useState<Page>(initialPage);
+  const back = () => setPage("main");
 
-  if (page === "payment") return <PaymentMethodsPage onBack={() => setPage("main")} />;
-  if (page === "security") return <SecurityPage onBack={() => setPage("main")} />;
-  if (page === "notifications") return <NotificationsPage onBack={() => setPage("main")} />;
-  if (page === "appearance") return <AppearancePage onBack={() => setPage("main")} />;
-  if (page === "help") return <HelpPage onBack={() => setPage("main")} />;
+  if (page === "payment") return <PaymentMethodsPage onBack={back} />;
+  if (page === "security") return <SecurityPage onBack={back} />;
+  if (page === "notifications") return <NotificationsPage onBack={back} />;
+  if (page === "appearance") return <AppearancePage onBack={back} />;
+  if (page === "help") return <HelpPage onBack={back} />;
+  if (page.startsWith("settings")) return <SettingsRouter page={page} setPage={setPage} />;
 
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
         <div className="px-5 pt-3 pb-2 flex items-center justify-between">
           <p className="font-syne text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Profile</p>
-          <button className="w-10 h-10 rounded-xl glass flex items-center justify-center">
+          <button onClick={() => setPage("settings")} className="w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform" aria-label="Open settings">
             <Settings className="w-4 h-4 text-foreground" />
           </button>
         </div>
@@ -68,9 +70,9 @@ export const ProfileScreen = () => {
         <div className="px-5 mt-3">
           <div className="glass-strong rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden">
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/30 blur-3xl pointer-events-none" />
-            <div className="relative">
-              <div className="w-20 h-20 rounded-2xl overflow-hidden ring-4 ring-primary/30 shadow-[0_12px_32px_hsl(var(--primary)/0.5)]">
-                <img src={avatar} alt="Wilson Wuver" className="w-full h-full object-cover" loading="lazy" width={80} height={80} />
+            <div className="relative w-full flex flex-col items-center justify-center mx-auto">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-primary/30 shadow-[0_12px_32px_hsl(var(--primary)/0.5)] mx-auto">
+                <img src={avatar} alt="Wilson Wuver" className="w-full h-full object-cover" loading="lazy" width={96} height={96} />
               </div>
               <h2 className="font-syne text-[20px] font-bold text-foreground mt-3">Wilson Wuver</h2>
               <p className="text-[12px] text-muted-foreground mt-0.5">wilson@lumens.app</p>
