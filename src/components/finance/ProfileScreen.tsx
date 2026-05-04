@@ -335,27 +335,12 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => void }) => {
   const back = () => setPage("settings");
   if (page === "settings") return <SettingsHub setPage={setPage} onBack={() => setPage("main")} />;
+  if (page === "settings-currency") return <CurrencyPage onBack={back} kind="main" />;
+  if (page === "settings-subcurrency") return <CurrencyPage onBack={back} kind="sub" />;
+  if (page === "settings-budget") return <BudgetPage onBack={back} />;
+  if (page === "settings-accounts") return <AccountsPage onBack={back} />;
 
   const sub: Partial<Record<Page, { title: string; rows: { label: string; hint?: string; value?: string }[] }>> = {
-    "settings-currency": { title: "Main Currency", rows: [
-      { label: "USD — US Dollar", value: "selected" },
-      { label: "EUR — Euro" }, { label: "GBP — Pound" }, { label: "ZAR — Rand" }, { label: "JPY — Yen" }, { label: "NGN — Naira" },
-    ]},
-    "settings-subcurrency": { title: "Sub Currency", rows: [
-      { label: "EUR — Euro", value: "added" }, { label: "GBP — Pound" }, { label: "BTC — Bitcoin" }, { label: "ETH — Ethereum" },
-    ]},
-    "settings-budget": { title: "Budget Setting", rows: [
-      { label: "Monthly Budget", hint: "$3,200.00" },
-      { label: "Rollover unused budget", hint: "On" },
-      { label: "Per-category limits", hint: "8 categories" },
-      { label: "Alert threshold", hint: "80%" },
-    ]},
-    "settings-accounts": { title: "Accounts Setting", rows: [
-      { label: "Account Group", hint: "Personal, Business" },
-      { label: "Accounts", hint: "Checking, Savings, Credit Card, Cash" },
-      { label: "Include in totals", hint: "All accounts" },
-      { label: "Transfer-Exclude", hint: "Off" },
-    ]},
     "settings-transaction": { title: "Transaction Settings", rows: [
       { label: "Monthly Start Date", hint: "1st of month" },
       { label: "Carry-over Setting", hint: "On" },
@@ -411,6 +396,143 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
             {r.value === "added" && <span className="text-[10px] text-success font-bold uppercase tracking-wider">Added</span>}
           </div>
         ))}
+      </div>
+    </div>
+  );
+};
+
+const CurrencyPage = ({ onBack, kind }: { onBack: () => void; kind: "main" | "sub" }) => {
+  const { mainCurrency, subCurrency, setMainCurrency, setSubCurrency, rates, ratesUpdatedAt, ratesLoading } = useSettings();
+  const selected = kind === "main" ? mainCurrency : subCurrency;
+  const set = kind === "main" ? setMainCurrency : setSubCurrency;
+  return (
+    <div className="h-full flex flex-col animate-fade-up">
+      <Header title={kind === "main" ? "Main Currency" : "Sub Currency"} onBack={onBack} />
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-2">
+        <div className="glass rounded-2xl p-3 text-[11px] text-muted-foreground">
+          {ratesLoading ? "Fetching live rates…" : ratesUpdatedAt ? `Live rates · updated ${new Date(ratesUpdatedAt).toLocaleTimeString()}` : "Live rates unavailable"}
+        </div>
+        {CURRENCIES.map((c) => {
+          const rate = c.code === mainCurrency ? 1 : rates[c.code];
+          return (
+            <button key={c.code} onClick={() => set(c.code)} className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform text-left">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center font-mono-jb text-foreground font-semibold">{c.symbol}</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-medium text-foreground">{c.code} — {c.name}</p>
+                <p className="text-[11px] text-muted-foreground">{rate ? `1 ${mainCurrency} = ${rate.toFixed(4)} ${c.code}` : "—"}</p>
+              </div>
+              {selected === c.code && <Check className="w-4 h-4 text-primary-glow" />}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const BudgetPage = ({ onBack }: { onBack: () => void }) => {
+  const { budget, setBudget, mainCurrency, symbolOf } = useSettings();
+  const [monthly, setMonthly] = useState(String(budget.monthly));
+  const [threshold, setThreshold] = useState(String(budget.alertThresholdPct));
+  const [perCat, setPerCat] = useState<Record<string, string>>(
+    Object.fromEntries(CATEGORIES.filter((c) => c !== "Income").map((c) => [c, String(budget.perCategory[c] ?? "")]))
+  );
+  const [msg, setMsg] = useState("");
+
+  const save = () => {
+    const m = parseFloat(monthly) || 0;
+    const t = Math.min(100, Math.max(0, parseFloat(threshold) || 0));
+    const pc: Record<string, number> = {};
+    Object.entries(perCat).forEach(([k, v]) => { const n = parseFloat(v); if (n > 0) pc[k] = n; });
+    setBudget({ monthly: m, alertThresholdPct: t, perCategory: pc });
+    setMsg("Budget saved.");
+    setTimeout(() => setMsg(""), 1600);
+  };
+
+  return (
+    <div className="h-full flex flex-col animate-fade-up">
+      <Header title="Budget Setting" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+        <div className="glass-strong rounded-2xl p-4 space-y-3">
+          <div>
+            <p className="font-syne text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Monthly Budget ({mainCurrency})</p>
+            <div className="flex items-center gap-2 glass rounded-xl px-3 py-2">
+              <span className="font-mono-jb text-foreground">{symbolOf(mainCurrency)}</span>
+              <input type="number" min="0" step="0.01" value={monthly} onChange={(e) => setMonthly(e.target.value)} className="w-full bg-transparent outline-none font-mono-jb text-[18px] font-semibold text-foreground" />
+            </div>
+          </div>
+          <div>
+            <p className="font-syne text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Alert Threshold (%)</p>
+            <input type="range" min="50" max="100" value={threshold} onChange={(e) => setThreshold(e.target.value)} className="w-full" />
+            <p className="text-[11px] text-muted-foreground">Warn when spending hits {threshold}%</p>
+          </div>
+        </div>
+
+        <div className="glass-strong rounded-2xl p-4">
+          <p className="font-syne text-[11px] font-bold uppercase tracking-wider text-foreground mb-2">Per-category limits</p>
+          <div className="space-y-2">
+            {Object.keys(perCat).map((cat) => (
+              <div key={cat} className="flex items-center gap-2 glass rounded-xl px-3 py-2">
+                <span className="text-[12px] flex-1 text-foreground">{cat}</span>
+                <span className="font-mono-jb text-muted-foreground text-[12px]">{symbolOf(mainCurrency)}</span>
+                <input type="number" min="0" step="0.01" placeholder="0" value={perCat[cat]} onChange={(e) => setPerCat({ ...perCat, [cat]: e.target.value })} className="w-24 bg-transparent outline-none text-right font-mono-jb text-[13px] text-foreground" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {msg && <p className="text-[12px] text-success text-center">{msg}</p>}
+        <button onClick={save} className="w-full py-3.5 rounded-2xl gradient-primary-bg text-primary-foreground font-syne font-bold text-[12px] uppercase tracking-wider shadow-[0_8px_24px_hsl(var(--primary)/0.4)]">Save Budget</button>
+      </div>
+    </div>
+  );
+};
+
+const AccountsPage = ({ onBack }: { onBack: () => void }) => {
+  const { accounts, addAccount, updateAccount, removeAccount } = useSettings();
+  const [name, setName] = useState("");
+  const [type, setType] = useState<"Checking" | "Savings" | "Credit Card" | "Cash" | "Other">("Checking");
+
+  const add = () => {
+    if (!name.trim()) return;
+    addAccount({ name: name.trim().slice(0, 30), type, includeInTotals: true });
+    setName("");
+  };
+
+  return (
+    <div className="h-full flex flex-col animate-fade-up">
+      <Header title="Accounts Setting" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+        <div className="glass-strong rounded-2xl p-4 space-y-2">
+          <p className="font-syne text-[11px] font-bold uppercase tracking-wider text-foreground">Add new account</p>
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Account name" maxLength={30} className="w-full glass rounded-xl px-3 py-2 outline-none text-[13px] text-foreground placeholder:text-muted-foreground bg-transparent" />
+          <select value={type} onChange={(e) => setType(e.target.value as typeof type)} className="w-full glass rounded-xl px-3 py-2 outline-none text-[13px] text-foreground bg-transparent">
+            {["Checking", "Savings", "Credit Card", "Cash", "Other"].map((t) => <option key={t}>{t}</option>)}
+          </select>
+          <button onClick={add} className="w-full py-2.5 rounded-xl gradient-primary-bg text-primary-foreground font-syne font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
+            <Plus className="w-4 h-4" /> Add Account
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {accounts.map((a) => (
+            <div key={a.id} className="glass rounded-2xl p-3.5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <Wallet className="w-4 h-4 text-primary-glow" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-medium text-foreground truncate">{a.name}</p>
+                <p className="text-[11px] text-muted-foreground">{a.type}</p>
+              </div>
+              <button onClick={() => updateAccount(a.id, { includeInTotals: !a.includeInTotals })} className={`relative w-10 h-5 rounded-full transition-colors ${a.includeInTotals ? "gradient-primary-bg" : "bg-muted"}`} aria-label="Include in totals">
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${a.includeInTotals ? "translate-x-5" : ""}`} />
+              </button>
+              <button onClick={() => removeAccount(a.id)} className="w-9 h-9 rounded-xl bg-destructive/15 flex items-center justify-center" aria-label="Remove">
+                <Trash2 className="w-4 h-4 text-destructive" />
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
