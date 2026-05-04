@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, RotateCcw, Lock, Bell as BellIcon, Palette, Rocket, Languages, MessageSquare, Heart, Star, BookOpen, Clipboard, Copy as CopyIcon, Database } from "lucide-react";
+import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, RotateCcw, Lock, Bell as BellIcon, Palette, Rocket, Languages, MessageSquare, Heart, Star, BookOpen, Clipboard, Copy as CopyIcon, Database, Trash2, Check } from "lucide-react";
 import avatar from "@/assets/wilson-avatar.jpg";
 import { useTheme } from "./ThemeContext";
+import { CURRENCIES, useSettings } from "./SettingsContext";
+import { CATEGORIES } from "./TransactionsContext";
 
 type Page =
   | "main"
