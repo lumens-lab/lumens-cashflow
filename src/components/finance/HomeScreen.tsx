@@ -1,6 +1,7 @@
 import { ArrowUp, ArrowDown, Plus, Send, QrCode, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag } from "lucide-react";
 import avatar from "@/assets/wilson-avatar.jpg";
 import { useTransactions, Transaction } from "./TransactionsContext";
+import { useSettings } from "./SettingsContext";
 import { useMemo, useState } from "react";
 import { AddTransactionModal } from "./AddTransactionModal";
 
@@ -24,13 +25,14 @@ const fmtRel = (iso: string) => {
 };
 
 interface Props {
-  onReceive: () => void;
+  onPay: () => void;
   onProfile: () => void;
   onNotifications: () => void;
 }
 
-export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => {
+export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
   const { transactions } = useTransactions();
+  const { mainCurrency, subCurrency, displayCurrency, swapDisplayCurrency, convert, format, ratesLoading } = useSettings();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [actionFor, setActionFor] = useState<Transaction | null>(null);
@@ -47,13 +49,17 @@ export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => 
     });
     const totalBalance = transactions.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
     const recent = [...transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
-    return { income: inc, expense: exp, balance: 60000 + totalBalance, recent };
+    return { income: inc, expense: exp, balance: totalBalance, recent };
   }, [transactions]);
+
+  // amounts are stored in mainCurrency; convert to displayCurrency for UI
+  const dispBalance = convert(balance, mainCurrency, displayCurrency);
+  const dispIncome = convert(income, mainCurrency, displayCurrency);
+  const dispExpense = convert(expense, mainCurrency, displayCurrency);
 
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
-        {/* Header */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <span
             className="text-foreground leading-none"
@@ -87,7 +93,6 @@ export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => 
           </div>
         </div>
 
-        {/* Greeting */}
         <div className="px-5 pt-2 pb-4">
           <p className="text-xs text-muted-foreground">Good morning</p>
           <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">Wilson Wuver</h1>
@@ -100,20 +105,37 @@ export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => 
             <div className="absolute -bottom-16 -left-10 w-48 h-48 rounded-full bg-primary-deep/20 blur-3xl pointer-events-none" />
 
             <div className="relative">
-              <p className="font-syne text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-                Total Balance
-              </p>
-              <h2 className="font-mono-jb text-[34px] font-semibold text-foreground mt-2 tracking-tight text-balance-glow">
-                ${Math.floor(balance).toLocaleString()}
-                <span className="text-muted-foreground text-xl">.{(balance % 1).toFixed(2).slice(2)}</span>
-              </h2>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-syne text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                    Total Balance
+                  </p>
+                  <h2 className="font-mono-jb text-[32px] font-semibold text-foreground mt-2 tracking-tight text-balance-glow">
+                    {format(dispBalance, displayCurrency)}
+                  </h2>
+                </div>
+                <button
+                  onClick={swapDisplayCurrency}
+                  disabled={ratesLoading || mainCurrency === subCurrency}
+                  className="glass rounded-2xl px-3 py-2 flex items-center gap-1.5 active:scale-95 transition-transform disabled:opacity-50"
+                  aria-label="Swap currency"
+                  title="Swap currency"
+                >
+                  <Repeat className="w-3.5 h-3.5 text-primary-glow" />
+                  <span className="font-syne text-[10px] font-bold uppercase tracking-wider text-foreground">
+                    {displayCurrency}
+                  </span>
+                </button>
+              </div>
 
               <div className="flex items-center gap-2 mt-2">
                 <div className="flex items-center gap-1 bg-success/15 px-2 py-0.5 rounded-md">
                   <ArrowUp className="w-3 h-3 text-success" strokeWidth={3} />
                   <span className="font-mono-jb text-[11px] text-success font-medium">+12.4%</span>
                 </div>
-                <span className="text-[11px] text-muted-foreground">vs last month</span>
+                <span className="text-[11px] text-muted-foreground">
+                  {displayCurrency === mainCurrency ? "vs last month" : `1 ${mainCurrency} ≈ ${convert(1, mainCurrency, displayCurrency).toFixed(4)} ${displayCurrency}`}
+                </span>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mt-5">
@@ -124,7 +146,7 @@ export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => 
                     </div>
                     <span className="font-syne text-[9px] uppercase tracking-wider font-bold text-muted-foreground">Income</span>
                   </div>
-                  <p className="font-mono-jb text-[15px] font-semibold text-foreground">${income.toFixed(2)}</p>
+                  <p className="font-mono-jb text-[15px] font-semibold text-foreground">{format(dispIncome, displayCurrency)}</p>
                 </div>
                 <div className="glass-subtle rounded-2xl p-3.5">
                   <div className="flex items-center gap-1.5 mb-1.5">
@@ -133,7 +155,7 @@ export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => 
                     </div>
                     <span className="font-syne text-[9px] uppercase tracking-wider font-bold text-muted-foreground">Expense</span>
                   </div>
-                  <p className="font-mono-jb text-[15px] font-semibold text-foreground">${expense.toFixed(2)}</p>
+                  <p className="font-mono-jb text-[15px] font-semibold text-foreground">{format(dispExpense, displayCurrency)}</p>
                 </div>
               </div>
             </div>
@@ -144,10 +166,10 @@ export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => 
         <div className="px-5 mt-5">
           <div className="grid grid-cols-4 gap-2.5">
             {[
-              { Icon: QrCode, label: "Receive", onClick: onReceive, primary: true },
+              { Icon: QrCode, label: "Pay", onClick: onPay, primary: true },
               { Icon: Send, label: "Send" },
               { Icon: Plus, label: "Add", onClick: () => setAdding(true) },
-              { Icon: Repeat, label: "Swap" },
+              { Icon: Repeat, label: "Swap", onClick: swapDisplayCurrency },
             ].map(({ Icon, label, onClick, primary }) => (
               <button
                 key={label}
@@ -175,8 +197,14 @@ export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => 
           </div>
 
           <div className="space-y-2">
+            {recent.length === 0 && (
+              <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">
+                No transactions yet. Tap + to add one.
+              </div>
+            )}
             {recent.map((tx) => {
               const { Icon, color, bg } = iconFor(tx.category);
+              const dispAmt = convert(tx.amount, mainCurrency, displayCurrency);
               return (
                 <button
                   key={tx.id}
@@ -192,7 +220,7 @@ export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => 
                   </div>
                   <div className="text-right">
                     <p className={`font-mono-jb text-[14px] font-semibold ${tx.type === "in" ? "text-success" : "text-foreground"}`}>
-                      {tx.type === "in" ? "+" : "−"}${tx.amount.toFixed(2)}
+                      {tx.type === "in" ? "+" : "−"}{format(dispAmt, displayCurrency)}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{fmtRel(tx.date)}</p>
                   </div>
@@ -226,6 +254,8 @@ const ActionSheet = ({
   onEdit: () => void;
 }) => {
   const { deleteTransaction } = useTransactions();
+  const { format, displayCurrency, mainCurrency, convert } = useSettings();
+  const dispAmt = convert(tx.amount, mainCurrency, displayCurrency);
   return (
     <div className="absolute inset-0 z-[60] flex items-end animate-fade-up">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
@@ -236,7 +266,7 @@ const ActionSheet = ({
         </p>
         <h3 className="font-syne text-[18px] font-bold text-foreground text-center mt-1">{tx.name}</h3>
         <p className={`font-mono-jb text-[22px] font-semibold text-center mt-1 ${tx.type === "in" ? "text-success" : "text-foreground"}`}>
-          {tx.type === "in" ? "+" : "−"}${tx.amount.toFixed(2)}
+          {tx.type === "in" ? "+" : "−"}{format(dispAmt, displayCurrency)}
         </p>
 
         <div className="grid grid-cols-2 gap-3 mt-5">
