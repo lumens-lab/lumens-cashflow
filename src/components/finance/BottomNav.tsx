@@ -1,11 +1,11 @@
 import { Home, QrCode, BarChart3, Wallet, User } from "lucide-react";
 
-export type Tab = "home" | "receive" | "cashflow" | "wallet" | "profile";
+export type Tab = "home" | "pay" | "cashflow" | "wallet" | "profile";
 
 const items: { id: Tab; label: string; Icon: typeof Home }[] = [
   { id: "home", label: "Home", Icon: Home },
   { id: "cashflow", label: "Flow", Icon: BarChart3 },
-  { id: "receive", label: "Receive", Icon: QrCode },
+  { id: "pay", label: "Pay", Icon: QrCode },
   { id: "wallet", label: "Wallet", Icon: Wallet },
   { id: "profile", label: "Profile", Icon: User },
 ];
@@ -15,7 +15,7 @@ export const BottomNav = ({ active, onChange }: { active: Tab; onChange: (t: Tab
     <div className="glass-strong rounded-[28px] flex items-end justify-between px-3 py-2.5">
       {items.map(({ id, label, Icon }) => {
         const isActive = active === id;
-        const isCenter = id === "receive";
+        const isCenter = id === "pay";
 
         if (isCenter) {
           return (

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { TrendingUp, TrendingDown, ArrowUpRight, Filter, Check } from "lucide-react";
-import { ACCOUNTS, CATEGORIES, useTransactions } from "./TransactionsContext";
+import { CATEGORIES, useTransactions } from "./TransactionsContext";
+import { useSettings } from "./SettingsContext";
 
 type Range = "weekly" | "monthly" | "yearly";
 type FilterMode = "date" | "category" | "account";
@@ -96,7 +97,9 @@ export const CashflowScreen = () => {
   const path = points.reduce((acc, p, i) => acc + (i === 0 ? `M${p.x},${p.y}` : ` L${p.x},${p.y}`), "");
   const area = path + ` L${W},${H} L0,${H} Z`;
 
-  const filterOptions = filterMode === "category" ? CATEGORIES : filterMode === "account" ? ACCOUNTS : [];
+  const { accounts, displayCurrency, mainCurrency, convert, format } = useSettings();
+  const accountNames = accounts.map((a) => a.name);
+  const filterOptions = filterMode === "category" ? CATEGORIES : filterMode === "account" ? accountNames : [];
 
   const toggle = (v: string) =>
     setSelected((prev) => (prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]));
@@ -191,7 +194,7 @@ export const CashflowScreen = () => {
                 <div>
                   <p className="font-syne text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Net cashflow</p>
                   <h2 className="font-mono-jb text-[28px] font-semibold text-foreground mt-1 text-balance-glow">
-                    {totals.net >= 0 ? "+" : "−"}${Math.abs(totals.net).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {totals.net >= 0 ? "+" : "−"}{format(Math.abs(convert(totals.net, mainCurrency, displayCurrency)), displayCurrency)}
                   </h2>
                 </div>
                 <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg ${totals.net >= 0 ? "bg-success/15" : "bg-destructive/15"}`}>
@@ -268,7 +271,7 @@ export const CashflowScreen = () => {
               <ArrowUpRight className="w-3.5 h-3.5 text-success" />
             </div>
             <p className="font-mono-jb text-[18px] font-semibold text-foreground">
-              ${totals.income.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              {format(convert(totals.income, mainCurrency, displayCurrency), displayCurrency)}
             </p>
             <div className="h-1 bg-muted rounded-full mt-3 overflow-hidden">
               <div className="h-full bg-success rounded-full animate-bar" style={{ width: `${Math.min(100, (totals.income / Math.max(1, totals.income + totals.expense)) * 100)}%` }} />
@@ -280,7 +283,7 @@ export const CashflowScreen = () => {
               <ArrowUpRight className="w-3.5 h-3.5 text-destructive rotate-90" />
             </div>
             <p className="font-mono-jb text-[18px] font-semibold text-foreground">
-              ${totals.expense.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              {format(convert(totals.expense, mainCurrency, displayCurrency), displayCurrency)}
             </p>
             <div className="h-1 bg-muted rounded-full mt-3 overflow-hidden">
               <div className="h-full bg-destructive rounded-full animate-bar" style={{ width: `${Math.min(100, (totals.expense / Math.max(1, totals.income + totals.expense)) * 100)}%` }} />

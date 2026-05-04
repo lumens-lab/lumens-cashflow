@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Trash2 } from "lucide-react";
-import { ACCOUNTS, CATEGORIES, Transaction, useTransactions } from "./TransactionsContext";
+import { CATEGORIES, Transaction, useTransactions } from "./TransactionsContext";
+import { useSettings } from "./SettingsContext";
 
 export const AddTransactionModal = ({
   onClose,
@@ -10,12 +11,14 @@ export const AddTransactionModal = ({
   initial?: Transaction;
 }) => {
   const { addTransaction, updateTransaction, deleteTransaction } = useTransactions();
+  const { accounts, mainCurrency, symbolOf } = useSettings();
+  const accountNames = accounts.map((a) => a.name);
   const editing = !!initial;
   const [type, setType] = useState<"in" | "out">(initial?.type ?? "out");
   const [amount, setAmount] = useState(initial ? String(initial.amount) : "");
   const [vendor, setVendor] = useState(initial?.vendor ?? "");
   const [category, setCategory] = useState(initial?.category ?? CATEGORIES[1]);
-  const [account, setAccount] = useState(initial?.account ?? ACCOUNTS[0]);
+  const [account, setAccount] = useState(initial?.account ?? accountNames[0] ?? "Checking");
   const [date, setDate] = useState(initial?.date ?? new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState(initial?.name && initial.name !== initial.vendor ? initial.name : "");
 
@@ -46,7 +49,7 @@ export const AddTransactionModal = ({
 
   return (
     <div className="absolute inset-0 z-[60] flex items-end animate-fade-up">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-md" onClick={onClose} />
       <form
         onSubmit={submit}
         className="relative w-full max-h-[82%] overflow-y-auto no-scrollbar glass-strong rounded-t-[32px] p-5 pb-32"
@@ -79,17 +82,20 @@ export const AddTransactionModal = ({
           ))}
         </div>
 
-        <Field label="Amount">
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            required
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-            className="w-full bg-transparent outline-none font-mono-jb text-[22px] font-semibold text-foreground"
-          />
+        <Field label={`Amount (${mainCurrency})`}>
+          <div className="flex items-center gap-2">
+            <span className="font-mono-jb text-[18px] text-muted-foreground">{symbolOf(mainCurrency)}</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              required
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              className="w-full bg-transparent outline-none font-mono-jb text-[22px] font-semibold text-foreground"
+            />
+          </div>
         </Field>
 
         <Field label="Vendor">
@@ -111,7 +117,7 @@ export const AddTransactionModal = ({
           </Field>
           <Field label="Account">
             <select value={account} onChange={(e) => setAccount(e.target.value)} className="w-full bg-transparent outline-none text-[13px] text-foreground">
-              {ACCOUNTS.map((a) => (<option key={a}>{a}</option>))}
+              {accountNames.map((a) => (<option key={a}>{a}</option>))}
             </select>
           </Field>
         </div>
