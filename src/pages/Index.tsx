@@ -3,7 +3,7 @@ import { PhoneFrame } from "@/components/finance/PhoneFrame";
 import { StatusBar } from "@/components/finance/StatusBar";
 import { BottomNav, type Tab } from "@/components/finance/BottomNav";
 import { HomeScreen } from "@/components/finance/HomeScreen";
-import { ScanScreen } from "@/components/finance/ScanScreen";
+import { ReceiveScreen } from "@/components/finance/ReceiveScreen";
 import { CashflowScreen } from "@/components/finance/CashflowScreen";
 import { RecordsScreen } from "@/components/finance/RecordsScreen";
 import { ProfileScreen } from "@/components/finance/ProfileScreen";
@@ -12,14 +12,26 @@ import { ThemeProvider } from "@/components/finance/ThemeContext";
 
 const Index = () => {
   const [tab, setTab] = useState<Tab>("home");
-  const [scanOpen, setScanOpen] = useState(false);
+  const [receiveOpen, setReceiveOpen] = useState(false);
+  const [profileInitial, setProfileInitial] = useState<"main" | "notifications">("main");
 
   const handleNav = (t: Tab) => {
-    if (t === "scan") {
-      setScanOpen(true);
+    if (t === "receive") {
+      setReceiveOpen(true);
       return;
     }
+    if (t === "profile") setProfileInitial("main");
     setTab(t);
+  };
+
+  const goNotifications = () => {
+    setProfileInitial("notifications");
+    setTab("profile");
+  };
+
+  const goProfile = () => {
+    setProfileInitial("main");
+    setTab("profile");
   };
 
   return (
@@ -30,13 +42,19 @@ const Index = () => {
           <PhoneFrame>
             <StatusBar />
             <div className="absolute inset-0 pt-[44px]">
-              {tab === "home" && <HomeScreen onScan={() => setScanOpen(true)} onProfile={() => setTab("profile")} />}
+              {tab === "home" && (
+                <HomeScreen
+                  onReceive={() => setReceiveOpen(true)}
+                  onProfile={goProfile}
+                  onNotifications={goNotifications}
+                />
+              )}
               {tab === "cashflow" && <CashflowScreen />}
               {tab === "wallet" && <RecordsScreen />}
-              {tab === "profile" && <ProfileScreen />}
+              {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
             </div>
 
-            {scanOpen && <ScanScreen onClose={() => setScanOpen(false)} />}
+            {receiveOpen && <ReceiveScreen onClose={() => setReceiveOpen(false)} />}
 
             <BottomNav active={tab} onChange={handleNav} />
           </PhoneFrame>
