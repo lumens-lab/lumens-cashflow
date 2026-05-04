@@ -194,7 +194,7 @@ export const CashflowScreen = () => {
                 <div>
                   <p className="font-syne text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Net cashflow</p>
                   <h2 className="font-mono-jb text-[28px] font-semibold text-foreground mt-1 text-balance-glow">
-                    {totals.net >= 0 ? "+" : "−"}${Math.abs(totals.net).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {totals.net >= 0 ? "+" : "−"}{format(Math.abs(convert(totals.net, mainCurrency, displayCurrency)), displayCurrency)}
                   </h2>
                 </div>
                 <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg ${totals.net >= 0 ? "bg-success/15" : "bg-destructive/15"}`}>
