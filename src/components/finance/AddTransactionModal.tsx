@@ -33,7 +33,7 @@ export const AddTransactionModal = ({ onClose }: { onClose: () => void }) => {
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       <form
         onSubmit={submit}
-        className="relative w-full max-h-[88%] overflow-y-auto no-scrollbar glass-strong rounded-t-[32px] p-5 pb-8"
+        className="relative w-full max-h-[82%] overflow-y-auto no-scrollbar glass-strong rounded-t-[32px] p-5 pb-32"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-syne text-[18px] font-bold text-foreground">Add Transaction</h2>

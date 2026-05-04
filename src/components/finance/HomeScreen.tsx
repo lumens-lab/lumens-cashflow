@@ -46,7 +46,7 @@ export const HomeScreen = ({ onScan, onProfile }: { onScan: () => void; onProfil
       <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <img src={logo} alt="Lumens" className="h-7 w-auto object-contain dark:invert" />
+          <img src={logo} alt="Lumens" className="w-[150px] h-auto object-contain dark:invert" />
           <div className="flex items-center gap-2">
             <button className="relative w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform">
               <Bell className="w-4 h-4 text-foreground" />
