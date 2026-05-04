@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { TrendingUp, TrendingDown, ArrowUpRight, Filter, Check } from "lucide-react";
-import { ACCOUNTS, CATEGORIES, useTransactions } from "./TransactionsContext";
+import { CATEGORIES, useTransactions } from "./TransactionsContext";
+import { useSettings } from "./SettingsContext";
 
 type Range = "weekly" | "monthly" | "yearly";
 type FilterMode = "date" | "category" | "account";
