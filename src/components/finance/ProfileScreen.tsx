@@ -1,16 +1,39 @@
 import { useState } from "react";
-import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus } from "lucide-react";
+import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, RotateCcw, Lock, Bell as BellIcon, Palette, Rocket, Languages, MessageSquare, Heart, Star, BookOpen, Clipboard, Copy as CopyIcon, Database } from "lucide-react";
 import avatar from "@/assets/wilson-avatar.jpg";
 import { useTheme } from "./ThemeContext";
 
-type Page = "main" | "payment" | "security" | "notifications" | "appearance" | "help";
+type Page =
+  | "main"
+  | "payment"
+  | "security"
+  | "notifications"
+  | "appearance"
+  | "help"
+  | "settings"
+  | "settings-currency"
+  | "settings-subcurrency"
+  | "settings-budget"
+  | "settings-accounts"
+  | "settings-transaction"
+  | "settings-repeat"
+  | "settings-copy"
+  | "settings-income-cat"
+  | "settings-expense-cat"
+  | "settings-backup"
+  | "settings-passcode"
+  | "settings-alarm"
+  | "settings-style"
+  | "settings-icon"
+  | "settings-language";
 
-const Header = ({ title, onBack }: { title: string; onBack: () => void }) => (
+const Header = ({ title, onBack, right }: { title: string; onBack: () => void; right?: React.ReactNode }) => (
   <div className="px-5 pt-3 pb-3 flex items-center gap-3">
     <button onClick={onBack} className="w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform" aria-label="Back">
       <ChevronLeft className="w-5 h-5 text-foreground" />
     </button>
-    <h2 className="font-syne text-[18px] font-bold text-foreground">{title}</h2>
+    <h2 className="font-syne text-[18px] font-bold text-foreground flex-1">{title}</h2>
+    {right}
   </div>
 );
 
@@ -19,6 +42,7 @@ const items: { id: Page; Icon: typeof Settings; label: string; hint: string }[] 
   { id: "security", Icon: Shield, label: "Security", hint: "Face ID enabled" },
   { id: "notifications", Icon: Bell, label: "Notifications", hint: "All categories" },
   { id: "appearance", Icon: Moon, label: "Appearance", hint: "Light · Dark" },
+  { id: "settings", Icon: Settings, label: "Settings", hint: "Currency, budgets, accounts" },
   { id: "help", Icon: HelpCircle, label: "Help & Support", hint: "FAQs, contact" },
 ];
 
