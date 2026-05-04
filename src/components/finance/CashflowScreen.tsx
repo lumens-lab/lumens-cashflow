@@ -97,7 +97,9 @@ export const CashflowScreen = () => {
   const path = points.reduce((acc, p, i) => acc + (i === 0 ? `M${p.x},${p.y}` : ` L${p.x},${p.y}`), "");
   const area = path + ` L${W},${H} L0,${H} Z`;
 
-  const filterOptions = filterMode === "category" ? CATEGORIES : filterMode === "account" ? ACCOUNTS : [];
+  const { accounts, displayCurrency, mainCurrency, convert, format } = useSettings();
+  const accountNames = accounts.map((a) => a.name);
+  const filterOptions = filterMode === "category" ? CATEGORIES : filterMode === "account" ? accountNames : [];
 
   const toggle = (v: string) =>
     setSelected((prev) => (prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]));
