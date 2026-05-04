@@ -48,7 +48,11 @@ interface Ctx {
 const TransactionsContext = createContext<Ctx | null>(null);
 
 export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>(seed);
+  const [transactions, setTransactions] = useState<Transaction[]>(loadSeed);
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions)); } catch {}
+  }, [transactions]);
 
   const value = useMemo<Ctx>(() => ({
     transactions,
