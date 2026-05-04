@@ -53,6 +53,8 @@ const seed: Transaction[] = [
 interface Ctx {
   transactions: Transaction[];
   addTransaction: (t: Omit<Transaction, "id">) => void;
+  updateTransaction: (id: string, t: Omit<Transaction, "id">) => void;
+  deleteTransaction: (id: string) => void;
 }
 
 const TransactionsContext = createContext<Ctx | null>(null);
@@ -63,6 +65,8 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo<Ctx>(() => ({
     transactions,
     addTransaction: (t) => setTransactions((prev) => [{ ...t, id: crypto.randomUUID() }, ...prev]),
+    updateTransaction: (id, t) => setTransactions((prev) => prev.map((x) => (x.id === id ? { ...t, id } : x))),
+    deleteTransaction: (id) => setTransactions((prev) => prev.filter((x) => x.id !== id)),
   }), [transactions]);
 
   return <TransactionsContext.Provider value={value}>{children}</TransactionsContext.Provider>;

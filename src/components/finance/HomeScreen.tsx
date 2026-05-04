@@ -1,8 +1,8 @@
-import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag } from "lucide-react";
-import logo from "@/assets/lumens-logo.png";
+import { ArrowUp, ArrowDown, Plus, Send, QrCode, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag } from "lucide-react";
 import avatar from "@/assets/wilson-avatar.jpg";
-import { useTransactions } from "./TransactionsContext";
-import { useMemo } from "react";
+import { useTransactions, Transaction } from "./TransactionsContext";
+import { useMemo, useState } from "react";
+import { AddTransactionModal } from "./AddTransactionModal";
 
 const iconFor = (cat: string) => {
   switch (cat) {
@@ -23,8 +23,17 @@ const fmtRel = (iso: string) => {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 };
 
-export const HomeScreen = ({ onScan, onProfile }: { onScan: () => void; onProfile: () => void }) => {
+interface Props {
+  onReceive: () => void;
+  onProfile: () => void;
+  onNotifications: () => void;
+}
+
+export const HomeScreen = ({ onReceive, onProfile, onNotifications }: Props) => {
   const { transactions } = useTransactions();
+  const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<Transaction | null>(null);
+  const [actionFor, setActionFor] = useState<Transaction | null>(null);
 
   const { income, expense, balance, recent } = useMemo(() => {
     const now = new Date();
@@ -37,7 +46,7 @@ export const HomeScreen = ({ onScan, onProfile }: { onScan: () => void; onProfil
       }
     });
     const totalBalance = transactions.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
-    const recent = [...transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
+    const recent = [...transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
     return { income: inc, expense: exp, balance: 60000 + totalBalance, recent };
   }, [transactions]);
 
@@ -46,9 +55,25 @@ export const HomeScreen = ({ onScan, onProfile }: { onScan: () => void; onProfil
       <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <img src={logo} alt="Lumens" className="w-[150px] h-auto object-contain dark:invert" />
+          <span
+            className="text-foreground leading-none"
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 900,
+              fontSize: "42px",
+              letterSpacing: "-0.04em",
+              width: "150px",
+              display: "inline-block",
+            }}
+          >
+            lumens
+          </span>
           <div className="flex items-center gap-2">
-            <button className="relative w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform">
+            <button
+              onClick={onNotifications}
+              className="relative w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform"
+              aria-label="Notifications"
+            >
               <Bell className="w-4 h-4 text-foreground" />
               <span className="absolute w-2 h-2 rounded-full bg-primary translate-x-2 -translate-y-2" />
             </button>
@@ -119,9 +144,9 @@ export const HomeScreen = ({ onScan, onProfile }: { onScan: () => void; onProfil
         <div className="px-5 mt-5">
           <div className="grid grid-cols-4 gap-2.5">
             {[
-              { Icon: ScanLine, label: "Scan Pay", onClick: onScan, primary: true },
+              { Icon: QrCode, label: "Receive", onClick: onReceive, primary: true },
               { Icon: Send, label: "Send" },
-              { Icon: Plus, label: "Add" },
+              { Icon: Plus, label: "Add", onClick: () => setAdding(true) },
               { Icon: Repeat, label: "Swap" },
             ].map(({ Icon, label, onClick, primary }) => (
               <button
@@ -153,7 +178,11 @@ export const HomeScreen = ({ onScan, onProfile }: { onScan: () => void; onProfil
             {recent.map((tx) => {
               const { Icon, color, bg } = iconFor(tx.category);
               return (
-                <div key={tx.id} className="glass rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform">
+                <button
+                  key={tx.id}
+                  onClick={() => setActionFor(tx)}
+                  className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform text-left"
+                >
                   <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center`}>
                     <Icon className={`w-5 h-5 ${color}`} strokeWidth={2.2} />
                   </div>
@@ -167,11 +196,64 @@ export const HomeScreen = ({ onScan, onProfile }: { onScan: () => void; onProfil
                     </p>
                     <p className="text-[10px] text-muted-foreground">{fmtRel(tx.date)}</p>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
+      </div>
+
+      {adding && <AddTransactionModal onClose={() => setAdding(false)} />}
+      {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
+      {actionFor && (
+        <ActionSheet
+          tx={actionFor}
+          onClose={() => setActionFor(null)}
+          onEdit={() => { setEditing(actionFor); setActionFor(null); }}
+        />
+      )}
+    </div>
+  );
+};
+
+const ActionSheet = ({
+  tx,
+  onClose,
+  onEdit,
+}: {
+  tx: Transaction;
+  onClose: () => void;
+  onEdit: () => void;
+}) => {
+  const { deleteTransaction } = useTransactions();
+  return (
+    <div className="absolute inset-0 z-[60] flex items-end animate-fade-up">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full glass-strong rounded-t-[32px] p-5 pb-10">
+        <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-4" />
+        <p className="font-syne text-[10px] font-bold uppercase tracking-wider text-muted-foreground text-center">
+          {tx.category}
+        </p>
+        <h3 className="font-syne text-[18px] font-bold text-foreground text-center mt-1">{tx.name}</h3>
+        <p className={`font-mono-jb text-[22px] font-semibold text-center mt-1 ${tx.type === "in" ? "text-success" : "text-foreground"}`}>
+          {tx.type === "in" ? "+" : "−"}${tx.amount.toFixed(2)}
+        </p>
+
+        <div className="grid grid-cols-2 gap-3 mt-5">
+          <button
+            onClick={onEdit}
+            className="glass rounded-2xl py-3 font-syne font-bold text-[11px] uppercase tracking-wider text-foreground active:scale-95 transition-transform"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => { deleteTransaction(tx.id); onClose(); }}
+            className="rounded-2xl py-3 bg-destructive/15 text-destructive font-syne font-bold text-[11px] uppercase tracking-wider active:scale-95 transition-transform"
+          >
+            Delete
+          </button>
+        </div>
+        <button onClick={onClose} className="w-full mt-3 py-3 text-[12px] text-muted-foreground">Cancel</button>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Plus, ArrowDown, ArrowUp, Search, Filter } from "lucide-react";
-import { useTransactions } from "./TransactionsContext";
+import { Transaction, useTransactions } from "./TransactionsContext";
 import { AddTransactionModal } from "./AddTransactionModal";
 
 type Tab = "all" | "income" | "expense";
@@ -13,6 +13,7 @@ export const RecordsScreen = () => {
   const [tab, setTab] = useState<Tab>("all");
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<Transaction | null>(null);
 
   const list = useMemo(() => {
     return [...transactions]
@@ -109,7 +110,7 @@ export const RecordsScreen = () => {
             </div>
           )}
           {list.map((r) => (
-            <div key={r.id} className="glass rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform">
+            <button key={r.id} onClick={() => setEditing(r)} className="w-full text-left glass rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform">
               <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${r.type === "in" ? "bg-success/15" : "bg-destructive/15"}`}>
                 {r.type === "in" ? (
                   <ArrowDown className="w-5 h-5 text-success" strokeWidth={2.5} />
@@ -129,12 +130,13 @@ export const RecordsScreen = () => {
                 </p>
                 <p className="text-[10px] text-muted-foreground">{fmtDate(r.date)}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
 
       {adding && <AddTransactionModal onClose={() => setAdding(false)} />}
+      {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
     </div>
   );
 };
