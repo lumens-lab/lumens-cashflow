@@ -11,6 +11,7 @@ const fmtDate = (iso: string) =>
 
 export const RecordsScreen = () => {
   const { transactions } = useTransactions();
+  const { mainCurrency, displayCurrency, convert, format } = useSettings();
   const [tab, setTab] = useState<Tab>("all");
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
@@ -90,7 +91,7 @@ export const RecordsScreen = () => {
               </div>
               <span className="font-syne text-[9px] uppercase tracking-wider font-bold text-muted-foreground">Income</span>
             </div>
-            <p className="font-mono-jb text-[16px] font-semibold text-foreground">${totals.inc.toFixed(2)}</p>
+            <p className="font-mono-jb text-[16px] font-semibold text-foreground">{format(convert(totals.inc, mainCurrency, displayCurrency), displayCurrency)}</p>
           </div>
           <div className="glass rounded-2xl p-3.5">
             <div className="flex items-center gap-2 mb-1.5">
@@ -99,7 +100,7 @@ export const RecordsScreen = () => {
               </div>
               <span className="font-syne text-[9px] uppercase tracking-wider font-bold text-muted-foreground">Expense</span>
             </div>
-            <p className="font-mono-jb text-[16px] font-semibold text-foreground">${totals.exp.toFixed(2)}</p>
+            <p className="font-mono-jb text-[16px] font-semibold text-foreground">{format(convert(totals.exp, mainCurrency, displayCurrency), displayCurrency)}</p>
           </div>
         </div>
 
@@ -127,7 +128,7 @@ export const RecordsScreen = () => {
               </div>
               <div className="text-right">
                 <p className={`font-mono-jb text-[14px] font-semibold ${r.type === "in" ? "text-success" : "text-foreground"}`}>
-                  {r.type === "in" ? "+" : "−"}${r.amount.toFixed(2)}
+                  {r.type === "in" ? "+" : "−"}{format(convert(r.amount, mainCurrency, displayCurrency), displayCurrency)}
                 </p>
                 <p className="text-[10px] text-muted-foreground">{fmtDate(r.date)}</p>
               </div>
