@@ -101,8 +101,23 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
 
         <div className="px-5 pt-2 pb-4">
           <p className="text-xs text-muted-foreground">Good morning</p>
-          <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">Wilson Wuver</h1>
+          <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">{displayName}</h1>
         </div>
+
+        {showReminder && (
+          <div className="px-5 mb-3">
+            <button
+              onClick={() => setAdding(true)}
+              className="w-full glass rounded-2xl px-4 py-3 flex items-center gap-3 text-left active:scale-[0.99] transition-transform border border-primary/30"
+            >
+              <Bell className="w-4 h-4 text-primary-glow" />
+              <div className="flex-1">
+                <p className="text-[12px] font-medium text-foreground">No records in the last 24h</p>
+                <p className="text-[10px] text-muted-foreground">Tap to log a transaction now</p>
+              </div>
+            </button>
+          </div>
+        )}
 
         {/* Balance Hero */}
         <div className="px-5">
