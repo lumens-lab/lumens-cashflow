@@ -5,7 +5,7 @@ export type Tab = "home" | "pay" | "cashflow" | "wallet" | "profile";
 const items: { id: Tab; label: string; Icon: typeof Home }[] = [
   { id: "home", label: "Home", Icon: Home },
   { id: "cashflow", label: "Flow", Icon: BarChart3 },
-  { id: "pay", label: "Pay", Icon: QrCode },
+  { id: "pay", label: "Transact", Icon: QrCode },
   { id: "wallet", label: "Wallet", Icon: Wallet },
   { id: "profile", label: "Profile", Icon: User },
 ];

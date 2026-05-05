@@ -4,6 +4,7 @@ import avatar from "@/assets/wilson-avatar.jpg";
 import { useTheme } from "./ThemeContext";
 import { CURRENCIES, useSettings } from "./SettingsContext";
 import { CATEGORIES } from "./TransactionsContext";
+import { useAuth } from "./AuthContext";
 
 type Page =
   | "main"
@@ -50,6 +51,8 @@ const items: { id: Page; Icon: typeof Settings; label: string; hint: string }[] 
 
 export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } = {}) => {
   const [page, setPage] = useState<Page>(initialPage);
+  const { user, signOut } = useAuth();
+  const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "User";
   const back = () => setPage("main");
 
   if (page === "payment") return <PaymentMethodsPage onBack={back} />;
@@ -76,8 +79,8 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
               <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-primary/30 shadow-[0_12px_32px_hsl(var(--primary)/0.5)] mx-auto">
                 <img src={avatar} alt="Wilson Wuver" className="w-full h-full object-cover" loading="lazy" width={96} height={96} />
               </div>
-              <h2 className="font-syne text-[20px] font-bold text-foreground mt-3">Wilson Wuver</h2>
-              <p className="text-[12px] text-muted-foreground mt-0.5">wilson@lumens.app</p>
+              <h2 className="font-syne text-[20px] font-bold text-foreground mt-3">{displayName}</h2>
+              <p className="text-[12px] text-muted-foreground mt-0.5">{user?.email}</p>
               <div className="mt-4 inline-flex items-center gap-1.5 bg-primary/15 border border-primary/30 px-3 py-1 rounded-full">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary-glow animate-pulse-ring" />
                 <span className="font-syne text-[10px] font-bold uppercase tracking-wider text-primary-glow">Premium Member</span>
@@ -113,7 +116,7 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
             </button>
           ))}
 
-          <button className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 mt-4">
+          <button onClick={() => signOut()} className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 mt-4 active:scale-[0.99] transition-transform">
             <div className="w-10 h-10 rounded-xl bg-destructive/15 flex items-center justify-center">
               <LogOut className="w-4 h-4 text-destructive" strokeWidth={2} />
             </div>

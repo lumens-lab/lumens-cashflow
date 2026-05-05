@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Trash2 } from "lucide-react";
-import { CATEGORIES, Transaction, useTransactions } from "./TransactionsContext";
+import { Transaction, useTransactions } from "./TransactionsContext";
 import { useSettings } from "./SettingsContext";
 
 export const AddTransactionModal = ({
@@ -10,39 +10,60 @@ export const AddTransactionModal = ({
   onClose: () => void;
   initial?: Transaction;
 }) => {
-  const { addTransaction, updateTransaction, deleteTransaction } = useTransactions();
+  const { addTransaction, updateTransaction, deleteTransaction, categoriesFor, addCustomCategory } = useTransactions();
   const { accounts, mainCurrency, symbolOf } = useSettings();
   const accountNames = accounts.map((a) => a.name);
   const editing = !!initial;
   const [type, setType] = useState<"in" | "out">(initial?.type ?? "out");
   const [amount, setAmount] = useState(initial ? String(initial.amount) : "");
   const [vendor, setVendor] = useState(initial?.vendor ?? "");
-  const [category, setCategory] = useState(initial?.category ?? CATEGORIES[1]);
+  const initialCats = categoriesFor(initial?.type ?? "out");
+  const [category, setCategory] = useState(
+    initial?.category && initialCats.includes(initial.category) ? initial.category : initialCats[0]
+  );
   const [account, setAccount] = useState(initial?.account ?? accountNames[0] ?? "Checking");
   const [date, setDate] = useState(initial?.date ?? new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState(initial?.name && initial.name !== initial.vendor ? initial.name : "");
+  const [customName, setCustomName] = useState("");
 
-  const submit = (e: React.FormEvent) => {
+  const cats = categoriesFor(type);
+  const showCustomInput = category === "Other";
+
+  const handleTypeChange = (t: "in" | "out") => {
+    setType(t);
+    const next = categoriesFor(t);
+    setCategory(next[0]);
+    setCustomName("");
+  };
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(amount);
     if (!amt || amt <= 0 || !vendor.trim()) return;
+
+    let finalCategory = category;
+    if (category === "Other" && customName.trim()) {
+      finalCategory = customName.trim();
+      await addCustomCategory(finalCategory, type);
+    }
+
     const payload = {
       name: note.trim() || vendor.trim(),
       vendor: vendor.trim().slice(0, 60),
-      category,
+      category: finalCategory,
       account,
       amount: amt,
       type,
       date,
     };
-    if (editing && initial) updateTransaction(initial.id, payload);
-    else addTransaction(payload);
+    if (editing && initial) await updateTransaction(initial.id, payload);
+    else await addTransaction(payload);
     onClose();
   };
 
-  const remove = () => {
+  const remove = async () => {
     if (initial) {
-      deleteTransaction(initial.id);
+      await deleteTransaction(initial.id);
       onClose();
     }
   };
@@ -68,11 +89,7 @@ export const AddTransactionModal = ({
             <button
               type="button"
               key={t}
-              onClick={() => {
-                setType(t);
-                if (t === "in") setCategory("Income");
-                else if (category === "Income") setCategory("Groceries");
-              }}
+              onClick={() => handleTypeChange(t)}
               className={`py-2.5 rounded-xl font-syne text-[10px] font-bold uppercase tracking-wider transition-all ${
                 type === t ? "gradient-primary-bg text-primary-foreground" : "text-muted-foreground"
               }`}
@@ -112,7 +129,7 @@ export const AddTransactionModal = ({
         <div className="grid grid-cols-2 gap-3">
           <Field label="Category">
             <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-transparent outline-none text-[13px] text-foreground">
-              {CATEGORIES.map((c) => (<option key={c}>{c}</option>))}
+              {cats.map((c) => (<option key={c}>{c}</option>))}
             </select>
           </Field>
           <Field label="Account">
@@ -121,6 +138,18 @@ export const AddTransactionModal = ({
             </select>
           </Field>
         </div>
+
+        {showCustomInput && (
+          <Field label="New category name">
+            <input
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              placeholder="e.g. Pet care"
+              maxLength={40}
+              className="w-full bg-transparent outline-none text-[14px] text-foreground placeholder:text-muted-foreground"
+            />
+          </Field>
+        )}
 
         <Field label="Date">
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-transparent outline-none text-[13px] text-foreground" />

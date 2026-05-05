@@ -53,9 +53,9 @@ interface Ctx extends SettingsState {
 const KEY = "lumens.settings.v1";
 
 const defaults: SettingsState = {
-  mainCurrency: "USD",
-  subCurrency: "EUR",
-  displayCurrency: "USD",
+  mainCurrency: "ZAR",
+  subCurrency: "USD",
+  displayCurrency: "ZAR",
   budget: { monthly: 3200, perCategory: {}, alertThresholdPct: 80 },
   accounts: [
     { id: "a1", name: "Checking", type: "Checking", includeInTotals: true },
