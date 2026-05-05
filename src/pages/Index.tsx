@@ -10,61 +10,61 @@ import { ProfileScreen } from "@/components/finance/ProfileScreen";
 import { TransactionsProvider } from "@/components/finance/TransactionsContext";
 import { ThemeProvider } from "@/components/finance/ThemeContext";
 import { SettingsProvider } from "@/components/finance/SettingsContext";
+import { AuthProvider, useAuth } from "@/components/finance/AuthContext";
+import { AuthScreen } from "@/components/finance/AuthScreen";
 
-const Index = () => {
+const AppShell = () => {
+  const { user, loading } = useAuth();
   const [tab, setTab] = useState<Tab>("home");
   const [payOpen, setPayOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState<"main" | "notifications">("main");
 
   const handleNav = (t: Tab) => {
-    if (t === "pay") {
-      setPayOpen(true);
-      return;
-    }
+    if (t === "pay") { setPayOpen(true); return; }
     if (t === "profile") setProfileInitial("main");
     setTab(t);
   };
-
-  const goNotifications = () => {
-    setProfileInitial("notifications");
-    setTab("profile");
-  };
-
-  const goProfile = () => {
-    setProfileInitial("main");
-    setTab("profile");
-  };
+  const goNotifications = () => { setProfileInitial("notifications"); setTab("profile"); };
+  const goProfile = () => { setProfileInitial("main"); setTab("profile"); };
 
   return (
-    <ThemeProvider>
+    <PhoneFrame>
+      <StatusBar />
+      {loading ? (
+        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">Loading…</div>
+      ) : !user ? (
+        <AuthScreen />
+      ) : (
+        <>
+          <div className="absolute inset-0 pt-[44px]">
+            {tab === "home" && (
+              <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} />
+            )}
+            {tab === "cashflow" && <CashflowScreen />}
+            {tab === "wallet" && <RecordsScreen />}
+            {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
+          </div>
+          {payOpen && <PayScreen onClose={() => setPayOpen(false)} />}
+          <BottomNav active={tab} onChange={handleNav} />
+        </>
+      )}
+    </PhoneFrame>
+  );
+};
+
+const Index = () => (
+  <ThemeProvider>
+    <AuthProvider>
       <SettingsProvider>
         <TransactionsProvider>
           <main>
             <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
-            <PhoneFrame>
-              <StatusBar />
-              <div className="absolute inset-0 pt-[44px]">
-                {tab === "home" && (
-                  <HomeScreen
-                    onPay={() => setPayOpen(true)}
-                    onProfile={goProfile}
-                    onNotifications={goNotifications}
-                  />
-                )}
-                {tab === "cashflow" && <CashflowScreen />}
-                {tab === "wallet" && <RecordsScreen />}
-                {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
-              </div>
-
-              {payOpen && <PayScreen onClose={() => setPayOpen(false)} />}
-
-              <BottomNav active={tab} onChange={handleNav} />
-            </PhoneFrame>
+            <AppShell />
           </main>
         </TransactionsProvider>
       </SettingsProvider>
-    </ThemeProvider>
-  );
-};
+    </AuthProvider>
+  </ThemeProvider>
+);
 
 export default Index;
