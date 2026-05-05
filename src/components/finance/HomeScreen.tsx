@@ -32,11 +32,16 @@ interface Props {
 }
 
 export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
-  const { transactions } = useTransactions();
+  const { transactions, lastTxnAt } = useTransactions();
+  const { user } = useAuth();
   const { mainCurrency, subCurrency, displayCurrency, swapDisplayCurrency, convert, format, ratesLoading } = useSettings();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [actionFor, setActionFor] = useState<Transaction | null>(null);
+
+  const inactiveHrs = lastTxnAt ? Math.floor((Date.now() - lastTxnAt) / 3600000) : null;
+  const showReminder = inactiveHrs !== null && inactiveHrs >= 24;
+  const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "there";
 
   const { income, expense, balance, recent } = useMemo(() => {
     const now = new Date();
