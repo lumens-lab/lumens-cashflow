@@ -4,6 +4,7 @@ import avatar from "@/assets/wilson-avatar.jpg";
 import { useTheme } from "./ThemeContext";
 import { CURRENCIES, useSettings } from "./SettingsContext";
 import { CATEGORIES } from "./TransactionsContext";
+import { useAuth } from "./AuthContext";
 
 type Page =
   | "main"
