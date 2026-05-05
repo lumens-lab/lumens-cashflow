@@ -1,6 +1,7 @@
 import { ArrowUp, ArrowDown, Plus, Send, QrCode, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag } from "lucide-react";
 import avatar from "@/assets/wilson-avatar.jpg";
 import { useTransactions, Transaction } from "./TransactionsContext";
+import { useAuth } from "./AuthContext";
 import { useSettings } from "./SettingsContext";
 import { useMemo, useState } from "react";
 import { AddTransactionModal } from "./AddTransactionModal";
