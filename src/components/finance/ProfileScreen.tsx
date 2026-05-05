@@ -116,7 +116,7 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
             </button>
           ))}
 
-          <button className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 mt-4">
+          <button onClick={() => signOut()} className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 mt-4 active:scale-[0.99] transition-transform">
             <div className="w-10 h-10 rounded-xl bg-destructive/15 flex items-center justify-center">
               <LogOut className="w-4 h-4 text-destructive" strokeWidth={2} />
             </div>
