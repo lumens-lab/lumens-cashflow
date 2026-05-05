@@ -14,7 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          account: string
+          amount: number
+          category: string
+          created_at: string
+          date: string
+          id: string
+          name: string
+          type: string
+          user_id: string
+          vendor: string
+        }
+        Insert: {
+          account: string
+          amount: number
+          category: string
+          created_at?: string
+          date?: string
+          id?: string
+          name: string
+          type: string
+          user_id: string
+          vendor: string
+        }
+        Update: {
+          account?: string
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          id?: string
+          name?: string
+          type?: string
+          user_id?: string
+          vendor?: string
+        }
+        Relationships: []
+      }
+      user_categories: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
