@@ -51,6 +51,8 @@ const items: { id: Page; Icon: typeof Settings; label: string; hint: string }[] 
 
 export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } = {}) => {
   const [page, setPage] = useState<Page>(initialPage);
+  const { user, signOut } = useAuth();
+  const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "User";
   const back = () => setPage("main");
 
   if (page === "payment") return <PaymentMethodsPage onBack={back} />;
