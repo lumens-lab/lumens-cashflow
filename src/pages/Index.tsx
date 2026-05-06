@@ -3,6 +3,7 @@ import { PhoneFrame } from "@/components/finance/PhoneFrame";
 import { StatusBar } from "@/components/finance/StatusBar";
 import { BottomNav, type Tab } from "@/components/finance/BottomNav";
 import { HomeScreen } from "@/components/finance/HomeScreen";
+import { WalletHomeScreen } from "@/components/finance/wallet/WalletHomeScreen";
 import { PayScreen } from "@/components/finance/PayScreen";
 import { CashflowScreen } from "@/components/finance/CashflowScreen";
 import { RecordsScreen } from "@/components/finance/RecordsScreen";
@@ -12,9 +13,11 @@ import { ThemeProvider } from "@/components/finance/ThemeContext";
 import { SettingsProvider } from "@/components/finance/SettingsContext";
 import { AuthProvider, useAuth } from "@/components/finance/AuthContext";
 import { AuthScreen } from "@/components/finance/AuthScreen";
+import { PhaseProvider, usePhase } from "@/components/finance/PhaseContext";
 
 const AppShell = () => {
   const { user, loading } = useAuth();
+  const { phase } = usePhase();
   const [tab, setTab] = useState<Tab>("home");
   const [payOpen, setPayOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState<"main" | "notifications">("main");
@@ -37,9 +40,9 @@ const AppShell = () => {
       ) : (
         <>
           <div className="absolute inset-0 pt-[44px]">
-            {tab === "home" && (
-              <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} />
-            )}
+            {tab === "home" && (phase === "wallet"
+              ? <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />
+              : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} />)}
             {tab === "cashflow" && <CashflowScreen />}
             {tab === "wallet" && <RecordsScreen />}
             {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
@@ -57,10 +60,12 @@ const Index = () => (
     <AuthProvider>
       <SettingsProvider>
         <TransactionsProvider>
-          <main>
-            <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
-            <AppShell />
-          </main>
+          <PhaseProvider>
+            <main>
+              <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+              <AppShell />
+            </main>
+          </PhaseProvider>
         </TransactionsProvider>
       </SettingsProvider>
     </AuthProvider>

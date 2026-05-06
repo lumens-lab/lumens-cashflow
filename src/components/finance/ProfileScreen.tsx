@@ -532,34 +532,25 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
     <Header title="Settings" onBack={onBack} right={<span className="text-[11px] text-muted-foreground">2.12.3</span>} />
     <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5">
       <Section title="Settings">
-        <Row Icon={RotateCcw} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
+        <Row Icon={Database} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
         <Row Icon={Lock} label="Passcode" hint="Off" onClick={() => setPage("settings-passcode")} />
-        <Row Icon={DollarSign} label="Main Currency Setting" hint="USD ($)" onClick={() => setPage("settings-currency")} />
-        <Row Icon={DollarSign} label="Sub Currency Setting" hint="EUR, GBP" onClick={() => setPage("settings-subcurrency")} />
-        <Row Icon={BellIcon} label="Alarm Setting" onClick={() => setPage("settings-alarm")} />
-        <Row Icon={Palette} label="Style" onClick={() => setPage("settings-style")} />
-        <Row Icon={Rocket} label="Application Icon" onClick={() => setPage("settings-icon")} />
+        <Row Icon={DollarSign} label="Main Currency Setting" hint="ZAR (R)" onClick={() => setPage("settings-currency")} />
         <Row Icon={Languages} label="Language Setting" onClick={() => setPage("settings-language")} />
       </Section>
 
       <Section title="Other">
         <Row Icon={HelpCircle} label="Help" />
-        <Row Icon={MessageSquare} label="Feedback" />
-        <Row Icon={Heart} label="Rate it" />
-        <Row Icon={Star} label="Remove Ads." />
       </Section>
 
       <Section title="Trans.">
         <Row Icon={BookOpen} label="Transaction Settings" hint="Monthly Start Date, Carry-over, Period, Other" onClick={() => setPage("settings-transaction")} />
-        <Row Icon={RotateCcw} label="Repeat Setting" onClick={() => setPage("settings-repeat")} />
-        <Row Icon={CopyIcon} label="Copy-Paste Settings" hint="Update, Accounts, Description, Other" onClick={() => setPage("settings-copy")} />
       </Section>
 
       <Section title="Category / Accounts">
         <Row Icon={PiggyBank} label="Income Category Setting" onClick={() => setPage("settings-income-cat")} />
         <Row Icon={Database} label="Expenses Category Setting" onClick={() => setPage("settings-expense-cat")} />
         <Row Icon={Wallet} label="Accounts Setting" hint="Account Group, Accounts, Include in totals, Transfer-Exclude" onClick={() => setPage("settings-accounts")} />
-        <Row Icon={Clipboard} label="Budget Setting" onClick={() => setPage("settings-budget")} />
+        <Row Icon={CreditCard} label="Budget Setting" onClick={() => setPage("settings-budget")} />
       </Section>
     </div>
   </div>
