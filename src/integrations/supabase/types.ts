@@ -18,22 +18,34 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          date_of_birth: string | null
           display_name: string | null
+          email: string | null
           id: string
+          phone: string | null
+          transaction_pin_hash: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
+          email?: string | null
           id: string
+          phone?: string | null
+          transaction_pin_hash?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
+          email?: string | null
           id?: string
+          phone?: string | null
+          transaction_pin_hash?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -97,6 +109,30 @@ export type Database = {
           id?: string
           kind?: string
           name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_balances: {
+        Row: {
+          amount: number
+          asset: string
+          kind: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          asset: string
+          kind: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          asset?: string
+          kind?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
