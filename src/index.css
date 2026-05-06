@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Red+Hat+Display:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
@@ -96,16 +96,16 @@
   * { @apply border-border; -webkit-tap-highlight-color: transparent; }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--gradient-bg);
     min-height: 100vh;
   }
 }
 
 @layer utilities {
-  .font-syne { font-family: 'Montserrat', sans-serif; }
-  .font-mono-jb { font-family: 'Montserrat', sans-serif; }
-  .font-redhat { font-family: 'Red Hat Display', sans-serif; }
+  .font-syne { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; }
+  .font-mono-jb { font-family: 'Plus Jakarta Sans', sans-serif; font-variant-numeric: tabular-nums; }
+  .font-redhat { font-family: 'Plus Jakarta Sans', sans-serif; }
 
   .glass {
     background: var(--gradient-glass);
