@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, RotateCcw, Lock, Bell as BellIcon, Palette, Rocket, Languages, MessageSquare, Heart, Star, BookOpen, Clipboard, Copy as CopyIcon, Database, Trash2, Check } from "lucide-react";
-import avatar from "@/assets/wilson-avatar.jpg";
+import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, Lock, BookOpen, Database, Trash2, Check, Languages, Pencil } from "lucide-react";
 import { useTheme } from "./ThemeContext";
 import { CURRENCIES, useSettings } from "./SettingsContext";
 import { CATEGORIES } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
+import { ProfileEditSheet } from "./ProfileEditSheet";
 
 type Page =
   | "main"
@@ -15,19 +15,13 @@ type Page =
   | "help"
   | "settings"
   | "settings-currency"
-  | "settings-subcurrency"
   | "settings-budget"
   | "settings-accounts"
   | "settings-transaction"
-  | "settings-repeat"
-  | "settings-copy"
   | "settings-income-cat"
   | "settings-expense-cat"
   | "settings-backup"
   | "settings-passcode"
-  | "settings-alarm"
-  | "settings-style"
-  | "settings-icon"
   | "settings-language";
 
 const Header = ({ title, onBack, right }: { title: string; onBack: () => void; right?: React.ReactNode }) => (
@@ -51,8 +45,11 @@ const items: { id: Page; Icon: typeof Settings; label: string; hint: string }[] 
 
 export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } = {}) => {
   const [page, setPage] = useState<Page>(initialPage);
-  const { user, signOut } = useAuth();
-  const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "User";
+  const [editing, setEditing] = useState(false);
+  const { user, profile, signOut } = useAuth();
+  const displayName = profile?.display_name || (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "User";
+  const avatarUrl = profile?.avatar_url;
+  const initial = (displayName || "?")[0]?.toUpperCase();
   const back = () => setPage("main");
 
   if (page === "payment") return <PaymentMethodsPage onBack={back} />;
@@ -76,11 +73,15 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
           <div className="glass-strong rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden">
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/30 blur-3xl pointer-events-none" />
             <div className="relative w-full flex flex-col items-center justify-center mx-auto">
-              <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-primary/30 shadow-[0_12px_32px_hsl(var(--primary)/0.5)] mx-auto">
-                <img src={avatar} alt="Wilson Wuver" className="w-full h-full object-cover" loading="lazy" width={96} height={96} />
-              </div>
+              <button onClick={() => setEditing(true)} className="relative w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-primary/30 shadow-[0_12px_32px_hsl(var(--primary)/0.5)] mx-auto active:scale-95 transition-transform" aria-label="Edit profile">
+                {avatarUrl
+                  ? <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full bg-muted flex items-center justify-center text-3xl font-bold text-foreground">{initial}</div>}
+                <span className="absolute bottom-0 right-0 left-0 bg-black/45 text-white text-[10px] py-1 flex items-center justify-center gap-1"><Pencil className="w-3 h-3" /> Edit</span>
+              </button>
               <h2 className="font-syne text-[20px] font-bold text-foreground mt-3">{displayName}</h2>
-              <p className="text-[12px] text-muted-foreground mt-0.5">{user?.email}</p>
+              <p className="text-[12px] text-muted-foreground mt-0.5">{profile?.email || user?.email}</p>
+              {profile?.phone && <p className="text-[11px] text-muted-foreground mt-0.5">Wallet ID · {profile.phone}</p>}
               <div className="mt-4 inline-flex items-center gap-1.5 bg-primary/15 border border-primary/30 px-3 py-1 rounded-full">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary-glow animate-pulse-ring" />
                 <span className="font-syne text-[10px] font-bold uppercase tracking-wider text-primary-glow">Premium Member</span>
@@ -88,6 +89,7 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
             </div>
           </div>
         </div>
+        {editing && <ProfileEditSheet onClose={() => setEditing(false)} />}
 
         <div className="px-5 mt-4 grid grid-cols-3 gap-2">
           {[{ v: "284", l: "Txns" }, { v: "12", l: "Months" }, { v: "A+", l: "Score" }].map((s) => (
@@ -339,7 +341,6 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
   const back = () => setPage("settings");
   if (page === "settings") return <SettingsHub setPage={setPage} onBack={() => setPage("main")} />;
   if (page === "settings-currency") return <CurrencyPage onBack={back} kind="main" />;
-  if (page === "settings-subcurrency") return <CurrencyPage onBack={back} kind="sub" />;
   if (page === "settings-budget") return <BudgetPage onBack={back} />;
   if (page === "settings-accounts") return <AccountsPage onBack={back} />;
 
@@ -349,12 +350,6 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
       { label: "Carry-over Setting", hint: "On" },
       { label: "Period", hint: "Monthly" },
       { label: "Default Type", hint: "Expense" },
-    ]},
-    "settings-repeat": { title: "Repeat Setting", rows: [
-      { label: "Default repeat", hint: "None" }, { label: "Weekly templates", hint: "2 saved" }, { label: "Monthly templates", hint: "5 saved" },
-    ]},
-    "settings-copy": { title: "Copy-Paste Settings", rows: [
-      { label: "Update", hint: "On paste" }, { label: "Accounts", hint: "Keep" }, { label: "Description", hint: "Keep" }, { label: "Other fields", hint: "Reset" },
     ]},
     "settings-income-cat": { title: "Income Category Setting", rows: [
       { label: "Salary" }, { label: "Freelance" }, { label: "Investments" }, { label: "Refund" }, { label: "Gifts" }, { label: "+ Add new" },
@@ -367,15 +362,6 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
     ]},
     "settings-passcode": { title: "Passcode", rows: [
       { label: "Enable passcode", hint: "Off" }, { label: "Change passcode" }, { label: "Auto-lock", hint: "1 minute" },
-    ]},
-    "settings-alarm": { title: "Alarm Setting", rows: [
-      { label: "Daily reminder", hint: "9:00 PM" }, { label: "Weekly summary", hint: "Sunday" }, { label: "Bill due alerts", hint: "On" },
-    ]},
-    "settings-style": { title: "Style", rows: [
-      { label: "Accent color", hint: "Brilliant Blue" }, { label: "Density", hint: "Comfortable" }, { label: "Rounded corners", hint: "Large" },
-    ]},
-    "settings-icon": { title: "Application Icon", rows: [
-      { label: "Default" }, { label: "Midnight" }, { label: "Pearl" }, { label: "Neon" },
     ]},
     "settings-language": { title: "Language Setting", rows: [
       { label: "English (US)", value: "selected" }, { label: "English (UK)" }, { label: "Français" }, { label: "Español" }, { label: "Deutsch" },
@@ -546,34 +532,25 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
     <Header title="Settings" onBack={onBack} right={<span className="text-[11px] text-muted-foreground">2.12.3</span>} />
     <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5">
       <Section title="Settings">
-        <Row Icon={RotateCcw} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
+        <Row Icon={Database} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
         <Row Icon={Lock} label="Passcode" hint="Off" onClick={() => setPage("settings-passcode")} />
-        <Row Icon={DollarSign} label="Main Currency Setting" hint="USD ($)" onClick={() => setPage("settings-currency")} />
-        <Row Icon={DollarSign} label="Sub Currency Setting" hint="EUR, GBP" onClick={() => setPage("settings-subcurrency")} />
-        <Row Icon={BellIcon} label="Alarm Setting" onClick={() => setPage("settings-alarm")} />
-        <Row Icon={Palette} label="Style" onClick={() => setPage("settings-style")} />
-        <Row Icon={Rocket} label="Application Icon" onClick={() => setPage("settings-icon")} />
+        <Row Icon={DollarSign} label="Main Currency Setting" hint="ZAR (R)" onClick={() => setPage("settings-currency")} />
         <Row Icon={Languages} label="Language Setting" onClick={() => setPage("settings-language")} />
       </Section>
 
       <Section title="Other">
         <Row Icon={HelpCircle} label="Help" />
-        <Row Icon={MessageSquare} label="Feedback" />
-        <Row Icon={Heart} label="Rate it" />
-        <Row Icon={Star} label="Remove Ads." />
       </Section>
 
       <Section title="Trans.">
         <Row Icon={BookOpen} label="Transaction Settings" hint="Monthly Start Date, Carry-over, Period, Other" onClick={() => setPage("settings-transaction")} />
-        <Row Icon={RotateCcw} label="Repeat Setting" onClick={() => setPage("settings-repeat")} />
-        <Row Icon={CopyIcon} label="Copy-Paste Settings" hint="Update, Accounts, Description, Other" onClick={() => setPage("settings-copy")} />
       </Section>
 
       <Section title="Category / Accounts">
         <Row Icon={PiggyBank} label="Income Category Setting" onClick={() => setPage("settings-income-cat")} />
         <Row Icon={Database} label="Expenses Category Setting" onClick={() => setPage("settings-expense-cat")} />
         <Row Icon={Wallet} label="Accounts Setting" hint="Account Group, Accounts, Include in totals, Transfer-Exclude" onClick={() => setPage("settings-accounts")} />
-        <Row Icon={Clipboard} label="Budget Setting" onClick={() => setPage("settings-budget")} />
+        <Row Icon={CreditCard} label="Budget Setting" onClick={() => setPage("settings-budget")} />
       </Section>
     </div>
   </div>
