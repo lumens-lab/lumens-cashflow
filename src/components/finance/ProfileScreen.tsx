@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, RotateCcw, Lock, Bell as BellIcon, Palette, Rocket, Languages, MessageSquare, Heart, Star, BookOpen, Clipboard, Copy as CopyIcon, Database, Trash2, Check } from "lucide-react";
-import avatar from "@/assets/wilson-avatar.jpg";
+import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, Lock, BookOpen, Database, Trash2, Check, Languages, Pencil } from "lucide-react";
 import { useTheme } from "./ThemeContext";
 import { CURRENCIES, useSettings } from "./SettingsContext";
 import { CATEGORIES } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
+import { ProfileEditSheet } from "./ProfileEditSheet";
 
 type Page =
   | "main"
@@ -15,19 +15,13 @@ type Page =
   | "help"
   | "settings"
   | "settings-currency"
-  | "settings-subcurrency"
   | "settings-budget"
   | "settings-accounts"
   | "settings-transaction"
-  | "settings-repeat"
-  | "settings-copy"
   | "settings-income-cat"
   | "settings-expense-cat"
   | "settings-backup"
   | "settings-passcode"
-  | "settings-alarm"
-  | "settings-style"
-  | "settings-icon"
   | "settings-language";
 
 const Header = ({ title, onBack, right }: { title: string; onBack: () => void; right?: React.ReactNode }) => (
