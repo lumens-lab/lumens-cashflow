@@ -33,7 +33,7 @@ interface Props {
 
 export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
   const { transactions, lastTxnAt } = useTransactions();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { mainCurrency, subCurrency, displayCurrency, swapDisplayCurrency, convert, format, ratesLoading } = useSettings();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
@@ -41,7 +41,9 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
 
   const inactiveHrs = lastTxnAt ? Math.floor((Date.now() - lastTxnAt) / 3600000) : null;
   const showReminder = inactiveHrs !== null && inactiveHrs >= 24;
-  const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "there";
+  const displayName = profile?.display_name || (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "there";
+  const avatar = profile?.avatar_url;
+  const initial = (displayName || "?")[0]?.toUpperCase();
 
   const { income, expense, balance, recent } = useMemo(() => {
     const now = new Date();
@@ -94,10 +96,14 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
               className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
               aria-label="Open profile"
             >
-              <img src={avatar} alt="Wilson Wuver" className="w-full h-full object-cover" loading="lazy" width={40} height={40} />
+              {avatar
+                ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
             </button>
           </div>
         </div>
+
+        <div className="flex justify-center px-5 pt-1 pb-2"><PhaseToggle /></div>
 
         <div className="px-5 pt-2 pb-4">
           <p className="text-xs text-muted-foreground">Good morning</p>
