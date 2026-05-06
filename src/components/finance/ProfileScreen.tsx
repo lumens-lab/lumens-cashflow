@@ -341,7 +341,6 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
   const back = () => setPage("settings");
   if (page === "settings") return <SettingsHub setPage={setPage} onBack={() => setPage("main")} />;
   if (page === "settings-currency") return <CurrencyPage onBack={back} kind="main" />;
-  if (page === "settings-subcurrency") return <CurrencyPage onBack={back} kind="sub" />;
   if (page === "settings-budget") return <BudgetPage onBack={back} />;
   if (page === "settings-accounts") return <AccountsPage onBack={back} />;
 
@@ -351,12 +350,6 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
       { label: "Carry-over Setting", hint: "On" },
       { label: "Period", hint: "Monthly" },
       { label: "Default Type", hint: "Expense" },
-    ]},
-    "settings-repeat": { title: "Repeat Setting", rows: [
-      { label: "Default repeat", hint: "None" }, { label: "Weekly templates", hint: "2 saved" }, { label: "Monthly templates", hint: "5 saved" },
-    ]},
-    "settings-copy": { title: "Copy-Paste Settings", rows: [
-      { label: "Update", hint: "On paste" }, { label: "Accounts", hint: "Keep" }, { label: "Description", hint: "Keep" }, { label: "Other fields", hint: "Reset" },
     ]},
     "settings-income-cat": { title: "Income Category Setting", rows: [
       { label: "Salary" }, { label: "Freelance" }, { label: "Investments" }, { label: "Refund" }, { label: "Gifts" }, { label: "+ Add new" },
@@ -369,15 +362,6 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
     ]},
     "settings-passcode": { title: "Passcode", rows: [
       { label: "Enable passcode", hint: "Off" }, { label: "Change passcode" }, { label: "Auto-lock", hint: "1 minute" },
-    ]},
-    "settings-alarm": { title: "Alarm Setting", rows: [
-      { label: "Daily reminder", hint: "9:00 PM" }, { label: "Weekly summary", hint: "Sunday" }, { label: "Bill due alerts", hint: "On" },
-    ]},
-    "settings-style": { title: "Style", rows: [
-      { label: "Accent color", hint: "Brilliant Blue" }, { label: "Density", hint: "Comfortable" }, { label: "Rounded corners", hint: "Large" },
-    ]},
-    "settings-icon": { title: "Application Icon", rows: [
-      { label: "Default" }, { label: "Midnight" }, { label: "Pearl" }, { label: "Neon" },
     ]},
     "settings-language": { title: "Language Setting", rows: [
       { label: "English (US)", value: "selected" }, { label: "English (UK)" }, { label: "Français" }, { label: "Español" }, { label: "Deutsch" },
