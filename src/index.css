@@ -80,7 +80,7 @@
     --ring: 215 100% 60%;
     --gradient-card: linear-gradient(135deg, hsl(222 30% 12%) 0%, hsl(220 30% 10%) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-    --gradient-bg: radial-gradient(ellipse at top, hsl(222 40% 12%) 0%, hsl(222 30% 7%) 60%, hsl(222 30% 5%) 100%);
+    --gradient-bg: radial-gradient(ellipse at top, hsl(222 70% 14%) 0%, hsl(222 65% 9%) 60%, hsl(222 70% 6%) 100%);
     --shadow-glass: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
   }
 
