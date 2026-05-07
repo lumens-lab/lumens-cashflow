@@ -19,8 +19,8 @@ export const TransferSheet = ({ onClose, prefillPhone, prefillName }: { onClose:
   const submit = async () => {
     const amt = Number(amount);
     await addTransaction({
-      name: `Transfer to ${recipient}`,
-      vendor: recipient,
+      name: `Transfer to ${prefillName ?? recipient}`,
+      vendor: prefillName ?? recipient,
       category: "Transfer",
       account: "Wallet",
       amount: amt,
