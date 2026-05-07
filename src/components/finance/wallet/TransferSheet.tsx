@@ -5,10 +5,10 @@ import { useSettings, CURRENCIES } from "../SettingsContext";
 import { CRYPTOS } from "@/lib/cryptoRates";
 import { PinSheet } from "../PinSheet";
 
-export const TransferSheet = ({ onClose }: { onClose: () => void }) => {
+export const TransferSheet = ({ onClose, prefillPhone, prefillName }: { onClose: () => void; prefillPhone?: string; prefillName?: string }) => {
   const { addTransaction } = useTransactions();
   const { mainCurrency, format } = useSettings();
-  const [recipient, setRecipient] = useState("");
+  const [recipient, setRecipient] = useState(prefillPhone ?? "");
   const [asset, setAsset] = useState(mainCurrency);
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState(false);
