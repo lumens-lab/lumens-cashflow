@@ -524,6 +524,8 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
     <Header title="Settings" onBack={onBack} right={<span className="text-[11px] text-muted-foreground">2.12.3</span>} />
     <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5">
       <Section title="Settings">
+        <Row Icon={Bell} label="Notifications" hint="Transactions, alerts, news" onClick={() => setPage("notifications")} />
+        <Row Icon={Moon} label="Appearance" hint="Default mode follows phase" onClick={() => setPage("appearance")} />
         <Row Icon={Database} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
         <Row Icon={Lock} label="Passcode" hint="Off" onClick={() => setPage("settings-passcode")} />
         <Row Icon={DollarSign} label="Main Currency Setting" hint="ZAR (R)" onClick={() => setPage("settings-currency")} />
