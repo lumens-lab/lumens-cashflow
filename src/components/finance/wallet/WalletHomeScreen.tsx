@@ -39,13 +39,15 @@ interface Props {
   onNotifications: () => void;
 }
 
-type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap";
+type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap" | "addRecipient";
 
 export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
   const { transactions } = useTransactions();
   const { user, profile } = useAuth();
   const { mainCurrency, subCurrency, displayCurrency, swapDisplayCurrency, convert, format, ratesLoading } = useSettings();
+  const { recipients, removeRecipient } = useRecipients();
   const [sheet, setSheet] = useState<Sheet>(null);
+  const [transferPrefill, setTransferPrefill] = useState<Recipient | null>(null);
   const [actionFor, setActionFor] = useState<Transaction | null>(null);
   const [editing, setEditing] = useState<Transaction | null>(null);
 
