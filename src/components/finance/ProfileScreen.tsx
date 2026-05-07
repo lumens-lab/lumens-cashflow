@@ -90,14 +90,7 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
         </div>
         {editing && <ProfileEditSheet onClose={() => setEditing(false)} />}
 
-        <div className="px-5 mt-4 grid grid-cols-3 gap-2">
-          {[{ v: "284", l: "Txns" }, { v: "12", l: "Months" }, { v: "A+", l: "Score" }].map((s) => (
-            <div key={s.l} className="glass rounded-2xl p-3 text-center">
-              <p className="font-mono-jb text-[18px] font-semibold text-foreground">{s.v}</p>
-              <p className="font-syne text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{s.l}</p>
-            </div>
-          ))}
-        </div>
+        <LiveStats />
 
         <div className="px-5 mt-5 space-y-2">
           {items.map(({ id, Icon, label, hint }) => (
