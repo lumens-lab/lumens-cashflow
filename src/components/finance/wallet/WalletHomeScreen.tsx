@@ -1,7 +1,8 @@
-import { ArrowUp, ArrowDown, Send, ArrowDownToLine, ArrowUpFromLine, Repeat2, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Repeat } from "lucide-react";
+import { ArrowUp, ArrowDown, Send, ArrowDownToLine, ArrowUpFromLine, Repeat2, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Repeat, Plus, X } from "lucide-react";
 import { useTransactions, Transaction } from "../TransactionsContext";
 import { useAuth } from "../AuthContext";
 import { useSettings } from "../SettingsContext";
+import { useRecipients, Recipient } from "../RecipientsContext";
 import { useMemo, useState } from "react";
 import { AddTransactionModal } from "../AddTransactionModal";
 import { PhaseToggle } from "../PhaseToggle";
@@ -9,6 +10,7 @@ import { TransferSheet } from "./TransferSheet";
 import { DepositSheet } from "./DepositSheet";
 import { WithdrawSheet } from "./WithdrawSheet";
 import { SwapScreen } from "./SwapScreen";
+import { AddRecipientSheet } from "./AddRecipientSheet";
 
 const iconFor = (cat: string) => {
   switch (cat) {
