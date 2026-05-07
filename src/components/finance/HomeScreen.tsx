@@ -67,7 +67,7 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
 
   return (
     <div className="h-full flex flex-col animate-fade-up">
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <span
             className="text-foreground leading-none"
