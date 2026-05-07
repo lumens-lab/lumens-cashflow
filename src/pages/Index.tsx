@@ -14,6 +14,7 @@ import { SettingsProvider } from "@/components/finance/SettingsContext";
 import { AuthProvider, useAuth } from "@/components/finance/AuthContext";
 import { AuthScreen } from "@/components/finance/AuthScreen";
 import { PhaseProvider, usePhase } from "@/components/finance/PhaseContext";
+import { RecipientsProvider } from "@/components/finance/RecipientsContext";
 
 const AppShell = () => {
   const { user, loading } = useAuth();
