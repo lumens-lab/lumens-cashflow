@@ -38,7 +38,7 @@ export const PinSheet = ({ onSuccess, onClose }: Props) => {
   return (
     <div className="absolute inset-0 z-[80] flex items-end animate-fade-up">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-md" onClick={onClose} />
-      <div className="relative w-full glass-strong rounded-t-[32px] p-6 pb-10">
+      <div className="relative w-full glass-strong rounded-t-[32px] p-6 pb-36">
         <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 rounded-xl glass flex items-center justify-center"><X className="w-4 h-4" /></button>
         <div className="flex flex-col items-center gap-2">
           <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center">

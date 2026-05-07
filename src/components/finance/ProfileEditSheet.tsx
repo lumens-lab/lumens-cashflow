@@ -50,7 +50,7 @@ export const ProfileEditSheet = ({ onClose }: Props) => {
   return (
     <div className="absolute inset-0 z-[70] flex items-end animate-fade-up">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
-      <div className="relative w-full glass-strong rounded-t-[32px] p-6 pb-10 max-h-[90%] overflow-y-auto no-scrollbar">
+      <div className="relative w-full glass-strong rounded-t-[32px] p-6 pb-36 max-h-[90%] overflow-y-auto no-scrollbar">
         <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 rounded-xl glass flex items-center justify-center"><X className="w-4 h-4" /></button>
         <h3 className="font-syne text-[18px] font-bold text-foreground text-center">Edit Profile</h3>
 

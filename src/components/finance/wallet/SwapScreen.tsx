@@ -60,7 +60,7 @@ export const SwapScreen = ({ onClose }: { onClose: () => void }) => {
         <button className="w-10 h-10 rounded-xl glass flex items-center justify-center" aria-label="Settings"><Settings2 className="w-4 h-4 text-foreground" /></button>
       </div>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-10">
+      <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-36">
         <div className="relative">
           <AssetCard label="From" asset={from} amount={amount} onAmount={setAmount} onPick={() => setPickerFor("from")} editable />
           <button onClick={swap} className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl glass-strong flex items-center justify-center ring-4 ring-background z-10 active:rotate-180 transition-transform" aria-label="Swap direction">

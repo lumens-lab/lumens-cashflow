@@ -36,7 +36,7 @@ export const RecordsScreen = () => {
 
   return (
     <div className="h-full flex flex-col animate-fade-up">
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
         <div className="px-5 pt-3 pb-3 flex items-center justify-between">
           <div>
             <p className="font-syne text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Wallet</p>

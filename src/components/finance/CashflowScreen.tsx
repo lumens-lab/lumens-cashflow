@@ -106,7 +106,7 @@ export const CashflowScreen = () => {
 
   return (
     <div className="h-full flex flex-col animate-fade-up">
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
         {/* Header */}
         <div className="px-5 pt-3 pb-4 flex items-start justify-between">
           <div>

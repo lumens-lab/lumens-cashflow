@@ -1,7 +1,8 @@
-import { ArrowUp, ArrowDown, Send, ArrowDownToLine, ArrowUpFromLine, Repeat2, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Repeat } from "lucide-react";
+import { ArrowUp, ArrowDown, Send, ArrowDownToLine, ArrowUpFromLine, Repeat2, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Repeat, Plus, X } from "lucide-react";
 import { useTransactions, Transaction } from "../TransactionsContext";
 import { useAuth } from "../AuthContext";
 import { useSettings } from "../SettingsContext";
+import { useRecipients, Recipient } from "../RecipientsContext";
 import { useMemo, useState } from "react";
 import { AddTransactionModal } from "../AddTransactionModal";
 import { PhaseToggle } from "../PhaseToggle";
@@ -9,6 +10,7 @@ import { TransferSheet } from "./TransferSheet";
 import { DepositSheet } from "./DepositSheet";
 import { WithdrawSheet } from "./WithdrawSheet";
 import { SwapScreen } from "./SwapScreen";
+import { AddRecipientSheet } from "./AddRecipientSheet";
 
 const iconFor = (cat: string) => {
   switch (cat) {
@@ -37,13 +39,15 @@ interface Props {
   onNotifications: () => void;
 }
 
-type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap";
+type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap" | "addRecipient";
 
 export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
   const { transactions } = useTransactions();
   const { user, profile } = useAuth();
   const { mainCurrency, subCurrency, displayCurrency, swapDisplayCurrency, convert, format, ratesLoading } = useSettings();
+  const { recipients, removeRecipient } = useRecipients();
   const [sheet, setSheet] = useState<Sheet>(null);
+  const [transferPrefill, setTransferPrefill] = useState<Recipient | null>(null);
   const [actionFor, setActionFor] = useState<Transaction | null>(null);
   const [editing, setEditing] = useState<Transaction | null>(null);
 
@@ -73,7 +77,7 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
 
   return (
     <div className="h-full flex flex-col animate-fade-up">
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
           <span className="text-foreground leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: "32px", letterSpacing: "-0.04em", width: "150px" }}>
             lumens
@@ -161,6 +165,48 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
           </div>
         </div>
 
+        {/* Recipients */}
+        <div className="px-5 mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recipients</h3>
+            <button onClick={() => setSheet("addRecipient")} className="text-[11px] text-primary-glow font-medium">+ Add</button>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            {recipients.slice(0, 4).map((r) => (
+              <button
+                key={r.id}
+                onClick={() => { setTransferPrefill(r); setSheet("transfer"); }}
+                className="glass rounded-2xl p-3 flex items-center gap-3 active:scale-[0.99] transition-transform text-left relative"
+              >
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                  {r.avatar_url
+                    ? <img src={r.avatar_url} alt={r.name} className="w-full h-full object-cover" />
+                    : <span className="text-foreground font-bold">{r.name[0]?.toUpperCase()}</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-foreground truncate">{r.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{r.phone}</p>
+                </div>
+                <span
+                  role="button"
+                  aria-label="Remove"
+                  onClick={(e) => { e.stopPropagation(); removeRecipient(r.id); }}
+                  className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-destructive/15 flex items-center justify-center"
+                >
+                  <X className="w-3 h-3 text-destructive" />
+                </span>
+              </button>
+            ))}
+            <button
+              onClick={() => setSheet("addRecipient")}
+              className="glass rounded-2xl p-3 flex flex-col items-center justify-center gap-1 active:scale-[0.99] transition-transform border border-dashed border-primary/30 min-h-[64px]"
+            >
+              <Plus className="w-4 h-4 text-primary-glow" />
+              <span className="text-[11px] font-medium text-foreground">Add new</span>
+            </button>
+          </div>
+        </div>
+
         {/* Recent transactions */}
         <div className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
@@ -192,10 +238,11 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
         </div>
       </div>
 
-      {sheet === "transfer" && <TransferSheet onClose={() => setSheet(null)} />}
+      {sheet === "transfer" && <TransferSheet onClose={() => { setSheet(null); setTransferPrefill(null); }} prefillPhone={transferPrefill?.phone} prefillName={transferPrefill?.name} />}
       {sheet === "deposit" && <DepositSheet onClose={() => setSheet(null)} />}
       {sheet === "withdraw" && <WithdrawSheet onClose={() => setSheet(null)} />}
       {sheet === "swap" && <SwapScreen onClose={() => setSheet(null)} />}
+      {sheet === "addRecipient" && <AddRecipientSheet onClose={() => setSheet(null)} />}
       {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
       {actionFor && (
         <ActionSheet tx={actionFor} onClose={() => setActionFor(null)} onEdit={() => { setEditing(actionFor); setActionFor(null); }} />

@@ -5,10 +5,10 @@ import { useSettings, CURRENCIES } from "../SettingsContext";
 import { CRYPTOS } from "@/lib/cryptoRates";
 import { PinSheet } from "../PinSheet";
 
-export const TransferSheet = ({ onClose }: { onClose: () => void }) => {
+export const TransferSheet = ({ onClose, prefillPhone, prefillName }: { onClose: () => void; prefillPhone?: string; prefillName?: string }) => {
   const { addTransaction } = useTransactions();
   const { mainCurrency, format } = useSettings();
-  const [recipient, setRecipient] = useState("");
+  const [recipient, setRecipient] = useState(prefillPhone ?? "");
   const [asset, setAsset] = useState(mainCurrency);
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState(false);
@@ -19,8 +19,8 @@ export const TransferSheet = ({ onClose }: { onClose: () => void }) => {
   const submit = async () => {
     const amt = Number(amount);
     await addTransaction({
-      name: `Transfer to ${recipient}`,
-      vendor: recipient,
+      name: `Transfer to ${prefillName ?? recipient}`,
+      vendor: prefillName ?? recipient,
       category: "Transfer",
       account: "Wallet",
       amount: amt,
@@ -34,7 +34,7 @@ export const TransferSheet = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="absolute inset-0 z-[60] flex items-end animate-fade-up">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
-      <div className="relative w-full glass-strong rounded-t-[32px] p-6 pb-10 max-h-[92%] overflow-y-auto no-scrollbar">
+      <div className="relative w-full glass-strong rounded-t-[32px] p-6 pb-36 max-h-[92%] overflow-y-auto no-scrollbar">
         <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 rounded-xl glass flex items-center justify-center"><X className="w-4 h-4" /></button>
         <div className="flex flex-col items-center gap-2">
           <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center"><Send className="w-5 h-5 text-primary-glow" /></div>

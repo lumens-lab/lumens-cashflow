@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PhoneFrame } from "@/components/finance/PhoneFrame";
 import { StatusBar } from "@/components/finance/StatusBar";
 import { BottomNav, type Tab } from "@/components/finance/BottomNav";
@@ -9,21 +9,36 @@ import { CashflowScreen } from "@/components/finance/CashflowScreen";
 import { RecordsScreen } from "@/components/finance/RecordsScreen";
 import { ProfileScreen } from "@/components/finance/ProfileScreen";
 import { TransactionsProvider } from "@/components/finance/TransactionsContext";
-import { ThemeProvider } from "@/components/finance/ThemeContext";
+import { ThemeProvider, useTheme } from "@/components/finance/ThemeContext";
 import { SettingsProvider } from "@/components/finance/SettingsContext";
 import { AuthProvider, useAuth } from "@/components/finance/AuthContext";
 import { AuthScreen } from "@/components/finance/AuthScreen";
 import { PhaseProvider, usePhase } from "@/components/finance/PhaseContext";
+import { RecipientsProvider } from "@/components/finance/RecipientsContext";
 
 const AppShell = () => {
   const { user, loading } = useAuth();
-  const { phase } = usePhase();
+  const { phase, setPhase } = usePhase();
+  const { mode, setMode } = useTheme();
   const [tab, setTab] = useState<Tab>("home");
   const [payOpen, setPayOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState<"main" | "notifications">("main");
 
+  // Default-mode rule: white in cashflow, dark navy in wallet.
+  // Apply when phase changes (always, to honor request).
+  useEffect(() => {
+    setMode(phase === "wallet" ? "dark" : "light");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
   const handleNav = (t: Tab) => {
     if (t === "pay") { setPayOpen(true); return; }
+    if (t === "wallet") {
+      // Wallet icon = access route to wallet phase
+      setPhase("wallet");
+      setTab("home");
+      return;
+    }
     if (t === "profile") setProfileInitial("main");
     setTab(t);
   };
@@ -43,8 +58,7 @@ const AppShell = () => {
             {tab === "home" && (phase === "wallet"
               ? <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />
               : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} />)}
-            {tab === "cashflow" && <CashflowScreen />}
-            {tab === "wallet" && <RecordsScreen />}
+            {tab === "cashflow" && (phase === "wallet" ? <RecordsScreen /> : <CashflowScreen />)}
             {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
           </div>
           {payOpen && <PayScreen onClose={() => setPayOpen(false)} />}
@@ -60,12 +74,14 @@ const Index = () => (
     <AuthProvider>
       <SettingsProvider>
         <TransactionsProvider>
-          <PhaseProvider>
-            <main>
-              <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
-              <AppShell />
-            </main>
-          </PhaseProvider>
+          <RecipientsProvider>
+            <PhaseProvider>
+              <main>
+                <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+                <AppShell />
+              </main>
+            </PhaseProvider>
+          </RecipientsProvider>
         </TransactionsProvider>
       </SettingsProvider>
     </AuthProvider>

@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, Lock, BookOpen, Database, Trash2, Check, Languages, Pencil } from "lucide-react";
 import { useTheme } from "./ThemeContext";
 import { CURRENCIES, useSettings } from "./SettingsContext";
-import { CATEGORIES } from "./TransactionsContext";
+import { CATEGORIES, useTransactions } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
+import { usePhase } from "./PhaseContext";
 import { ProfileEditSheet } from "./ProfileEditSheet";
 
 type Page =
@@ -37,9 +38,7 @@ const Header = ({ title, onBack, right }: { title: string; onBack: () => void; r
 const items: { id: Page; Icon: typeof Settings; label: string; hint: string }[] = [
   { id: "payment", Icon: CreditCard, label: "Payment Methods", hint: "3 cards linked" },
   { id: "security", Icon: Shield, label: "Security", hint: "Face ID enabled" },
-  { id: "notifications", Icon: Bell, label: "Notifications", hint: "All categories" },
-  { id: "appearance", Icon: Moon, label: "Appearance", hint: "Light · Dark" },
-  { id: "settings", Icon: Settings, label: "Settings", hint: "Currency, budgets, accounts" },
+  { id: "settings", Icon: Settings, label: "Settings", hint: "Notifications, appearance, currency" },
   { id: "help", Icon: HelpCircle, label: "Help & Support", hint: "FAQs, contact" },
 ];
 
@@ -61,7 +60,7 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
 
   return (
     <div className="h-full flex flex-col animate-fade-up">
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
         <div className="px-5 pt-3 pb-2 flex items-center justify-between">
           <p className="font-syne text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Profile</p>
           <button onClick={() => setPage("settings")} className="w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform" aria-label="Open settings">
@@ -91,14 +90,7 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
         </div>
         {editing && <ProfileEditSheet onClose={() => setEditing(false)} />}
 
-        <div className="px-5 mt-4 grid grid-cols-3 gap-2">
-          {[{ v: "284", l: "Txns" }, { v: "12", l: "Months" }, { v: "A+", l: "Score" }].map((s) => (
-            <div key={s.l} className="glass rounded-2xl p-3 text-center">
-              <p className="font-mono-jb text-[18px] font-semibold text-foreground">{s.v}</p>
-              <p className="font-syne text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{s.l}</p>
-            </div>
-          ))}
-        </div>
+        <LiveStats />
 
         <div className="px-5 mt-5 space-y-2">
           {items.map(({ id, Icon, label, hint }) => (
@@ -141,7 +133,7 @@ const PaymentMethodsPage = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Payment Methods" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
         {cards.map((c) => (
           <div key={c.last4} className={`rounded-2xl p-5 bg-gradient-to-br ${c.color} text-white shadow-lg`}>
             <p className="font-syne text-[10px] uppercase tracking-wider opacity-80">{c.brand}</p>
@@ -177,7 +169,7 @@ const SecurityPage = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Security" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
         <form onSubmit={submit} className="glass-strong rounded-2xl p-4 space-y-3">
           <h3 className="font-syne text-[12px] font-bold uppercase tracking-wider text-foreground">Change Password</h3>
           {[
@@ -218,7 +210,7 @@ const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Notifications" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
         <Toggle label="Transactions" hint="Every payment and deposit" value={s.tx} onChange={(v) => setS({ ...s, tx: v })} />
         <Toggle label="Budget alerts" hint="When you near a category limit" value={s.budget} onChange={(v) => setS({ ...s, budget: v })} />
         <Toggle label="Security alerts" hint="Sign-ins and password changes" value={s.security} onChange={(v) => setS({ ...s, security: v })} />
@@ -230,13 +222,25 @@ const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
 
 const AppearancePage = ({ onBack }: { onBack: () => void }) => {
   const { mode, setMode } = useTheme();
+  const { phase } = usePhase();
+  const defaultMode = phase === "wallet" ? "dark" : "light";
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Appearance" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
         <div className="glass-strong rounded-2xl p-4">
           <h3 className="font-syne text-[12px] font-bold uppercase tracking-wider text-foreground mb-3">Theme</h3>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => setMode(defaultMode)}
+              className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
+                mode === defaultMode ? "gradient-primary-bg text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.4)]" : "glass text-foreground"
+              }`}
+            >
+              {defaultMode === "dark" ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+              <span className="font-syne text-[10px] font-bold uppercase tracking-wider">Default</span>
+              <span className="text-[9px] opacity-70">{phase === "wallet" ? "Dark navy" : "White"}</span>
+            </button>
             <button
               onClick={() => setMode("light")}
               className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
@@ -244,7 +248,7 @@ const AppearancePage = ({ onBack }: { onBack: () => void }) => {
               }`}
             >
               <Sun className="w-6 h-6" />
-              <span className="font-syne text-[11px] font-bold uppercase tracking-wider">Default</span>
+              <span className="font-syne text-[10px] font-bold uppercase tracking-wider">Light</span>
             </button>
             <button
               onClick={() => setMode("dark")}
@@ -253,10 +257,10 @@ const AppearancePage = ({ onBack }: { onBack: () => void }) => {
               }`}
             >
               <Moon className="w-6 h-6" />
-              <span className="font-syne text-[11px] font-bold uppercase tracking-wider">Dark</span>
+              <span className="font-syne text-[10px] font-bold uppercase tracking-wider">Dark</span>
             </button>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-3">Toggle between the bright default look and a deep dark mode.</p>
+          <p className="text-[11px] text-muted-foreground mt-3">Default follows the active phase: white in CashFlow, dark navy in Wallet.</p>
         </div>
       </div>
     </div>
@@ -275,7 +279,7 @@ const HelpPage = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Help & Support" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
         <div className="space-y-2">
           {faqs.map((f, i) => (
             <button key={i} onClick={() => setOpen(open === i ? null : i)} className="w-full glass rounded-2xl p-4 text-left">
@@ -374,7 +378,7 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title={cur.title} onBack={back} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-2">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-2">
         {cur.rows.map((r, i) => (
           <div key={i} className="glass rounded-2xl p-3.5 flex items-center gap-3">
             <div className="flex-1 min-w-0">
@@ -397,7 +401,7 @@ const CurrencyPage = ({ onBack, kind }: { onBack: () => void; kind: "main" | "su
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title={kind === "main" ? "Main Currency" : "Sub Currency"} onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-2">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-2">
         <div className="glass rounded-2xl p-3 text-[11px] text-muted-foreground">
           {ratesLoading ? "Fetching live rates…" : ratesUpdatedAt ? `Live rates · updated ${new Date(ratesUpdatedAt).toLocaleTimeString()}` : "Live rates unavailable"}
         </div>
@@ -441,7 +445,7 @@ const BudgetPage = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Budget Setting" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
         <div className="glass-strong rounded-2xl p-4 space-y-3">
           <div>
             <p className="font-syne text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Monthly Budget ({mainCurrency})</p>
@@ -491,7 +495,7 @@ const AccountsPage = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Accounts Setting" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5 space-y-3">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
         <div className="glass-strong rounded-2xl p-4 space-y-2">
           <p className="font-syne text-[11px] font-bold uppercase tracking-wider text-foreground">Add new account</p>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Account name" maxLength={30} className="w-full glass rounded-xl px-3 py-2 outline-none text-[13px] text-foreground placeholder:text-muted-foreground bg-transparent" />
@@ -530,8 +534,10 @@ const AccountsPage = ({ onBack }: { onBack: () => void }) => {
 const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: () => void }) => (
   <div className="h-full flex flex-col animate-fade-up">
     <Header title="Settings" onBack={onBack} right={<span className="text-[11px] text-muted-foreground">2.12.3</span>} />
-    <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-5">
+    <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5">
       <Section title="Settings">
+        <Row Icon={Bell} label="Notifications" hint="Transactions, alerts, news" onClick={() => setPage("notifications")} />
+        <Row Icon={Moon} label="Appearance" hint="Default mode follows phase" onClick={() => setPage("appearance")} />
         <Row Icon={Database} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
         <Row Icon={Lock} label="Passcode" hint="Off" onClick={() => setPage("settings-passcode")} />
         <Row Icon={DollarSign} label="Main Currency Setting" hint="ZAR (R)" onClick={() => setPage("settings-currency")} />
@@ -556,3 +562,30 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
   </div>
 );
 
+
+const LiveStats = () => {
+  const { transactions } = useTransactions();
+  const now = Date.now();
+  const countSince = (months: number) => {
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - months);
+    const c = cutoff.getTime();
+    return transactions.filter((t) => new Date(t.date).getTime() >= c && new Date(t.date).getTime() <= now).length;
+  };
+  const stats = [
+    { v: countSince(12), l: "12M Txns" },
+    { v: countSince(6), l: "6M Txns" },
+    { v: countSince(3), l: "3M Txns" },
+    { v: countSince(1), l: "1M Txns" },
+  ];
+  return (
+    <div className="px-5 mt-4 grid grid-cols-4 gap-2">
+      {stats.map((s) => (
+        <div key={s.l} className="glass rounded-2xl p-2.5 text-center">
+          <p className="font-mono-jb text-[16px] font-semibold text-foreground">{s.v}</p>
+          <p className="font-syne text-[8px] uppercase tracking-wider text-muted-foreground mt-0.5">{s.l}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
