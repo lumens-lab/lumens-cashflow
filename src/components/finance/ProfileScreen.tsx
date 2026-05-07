@@ -222,13 +222,25 @@ const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
 
 const AppearancePage = ({ onBack }: { onBack: () => void }) => {
   const { mode, setMode } = useTheme();
+  const { phase } = usePhase();
+  const defaultMode = phase === "wallet" ? "dark" : "light";
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Appearance" onBack={onBack} />
       <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
         <div className="glass-strong rounded-2xl p-4">
           <h3 className="font-syne text-[12px] font-bold uppercase tracking-wider text-foreground mb-3">Theme</h3>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => setMode(defaultMode)}
+              className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
+                mode === defaultMode ? "gradient-primary-bg text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.4)]" : "glass text-foreground"
+              }`}
+            >
+              {defaultMode === "dark" ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+              <span className="font-syne text-[10px] font-bold uppercase tracking-wider">Default</span>
+              <span className="text-[9px] opacity-70">{phase === "wallet" ? "Dark navy" : "White"}</span>
+            </button>
             <button
               onClick={() => setMode("light")}
               className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
@@ -236,7 +248,7 @@ const AppearancePage = ({ onBack }: { onBack: () => void }) => {
               }`}
             >
               <Sun className="w-6 h-6" />
-              <span className="font-syne text-[11px] font-bold uppercase tracking-wider">Default</span>
+              <span className="font-syne text-[10px] font-bold uppercase tracking-wider">Light</span>
             </button>
             <button
               onClick={() => setMode("dark")}
@@ -245,10 +257,10 @@ const AppearancePage = ({ onBack }: { onBack: () => void }) => {
               }`}
             >
               <Moon className="w-6 h-6" />
-              <span className="font-syne text-[11px] font-bold uppercase tracking-wider">Dark</span>
+              <span className="font-syne text-[10px] font-bold uppercase tracking-wider">Dark</span>
             </button>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-3">Toggle between the bright default look and a deep dark mode.</p>
+          <p className="text-[11px] text-muted-foreground mt-3">Default follows the active phase: white in CashFlow, dark navy in Wallet.</p>
         </div>
       </div>
     </div>
