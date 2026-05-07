@@ -37,9 +37,7 @@ const Header = ({ title, onBack, right }: { title: string; onBack: () => void; r
 const items: { id: Page; Icon: typeof Settings; label: string; hint: string }[] = [
   { id: "payment", Icon: CreditCard, label: "Payment Methods", hint: "3 cards linked" },
   { id: "security", Icon: Shield, label: "Security", hint: "Face ID enabled" },
-  { id: "notifications", Icon: Bell, label: "Notifications", hint: "All categories" },
-  { id: "appearance", Icon: Moon, label: "Appearance", hint: "Light · Dark" },
-  { id: "settings", Icon: Settings, label: "Settings", hint: "Currency, budgets, accounts" },
+  { id: "settings", Icon: Settings, label: "Settings", hint: "Notifications, appearance, currency" },
   { id: "help", Icon: HelpCircle, label: "Help & Support", hint: "FAQs, contact" },
 ];
 
