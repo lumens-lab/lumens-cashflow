@@ -238,10 +238,11 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
         </div>
       </div>
 
-      {sheet === "transfer" && <TransferSheet onClose={() => setSheet(null)} />}
+      {sheet === "transfer" && <TransferSheet onClose={() => { setSheet(null); setTransferPrefill(null); }} prefillPhone={transferPrefill?.phone} prefillName={transferPrefill?.name} />}
       {sheet === "deposit" && <DepositSheet onClose={() => setSheet(null)} />}
       {sheet === "withdraw" && <WithdrawSheet onClose={() => setSheet(null)} />}
       {sheet === "swap" && <SwapScreen onClose={() => setSheet(null)} />}
+      {sheet === "addRecipient" && <AddRecipientSheet onClose={() => setSheet(null)} />}
       {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
       {actionFor && (
         <ActionSheet tx={actionFor} onClose={() => setActionFor(null)} onEdit={() => { setEditing(actionFor); setActionFor(null); }} />
