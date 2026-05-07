@@ -550,3 +550,30 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
   </div>
 );
 
+
+const LiveStats = () => {
+  const { transactions } = useTransactions();
+  const now = Date.now();
+  const countSince = (months: number) => {
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - months);
+    const c = cutoff.getTime();
+    return transactions.filter((t) => new Date(t.date).getTime() >= c && new Date(t.date).getTime() <= now).length;
+  };
+  const stats = [
+    { v: countSince(12), l: "12M Txns" },
+    { v: countSince(6), l: "6M Txns" },
+    { v: countSince(3), l: "3M Txns" },
+    { v: countSince(1), l: "1M Txns" },
+  ];
+  return (
+    <div className="px-5 mt-4 grid grid-cols-4 gap-2">
+      {stats.map((s) => (
+        <div key={s.l} className="glass rounded-2xl p-2.5 text-center">
+          <p className="font-mono-jb text-[16px] font-semibold text-foreground">{s.v}</p>
+          <p className="font-syne text-[8px] uppercase tracking-wider text-muted-foreground mt-0.5">{s.l}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
