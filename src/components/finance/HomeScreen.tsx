@@ -72,9 +72,9 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
           <span
             className="text-foreground leading-none"
             style={{
-              fontFamily: "'Montserrat', sans-serif",
-              fontWeight: 900,
-              fontSize: "42px",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 800,
+              fontSize: "32px",
               letterSpacing: "-0.04em",
               width: "150px",
               display: "inline-block",
