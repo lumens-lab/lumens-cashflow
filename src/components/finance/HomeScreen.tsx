@@ -1,10 +1,11 @@
-import { ArrowUp, ArrowDown, Plus, Send, QrCode, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag } from "lucide-react";
 import { useTransactions, Transaction } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
 import { useSettings } from "./SettingsContext";
 import { PhaseToggle } from "./PhaseToggle";
 import { useMemo, useState } from "react";
 import { AddTransactionModal } from "./AddTransactionModal";
+import { ReceiptScanner, ParsedReceipt } from "./ReceiptScanner";
 
 const iconFor = (cat: string) => {
   switch (cat) {
@@ -38,6 +39,8 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [actionFor, setActionFor] = useState<Transaction | null>(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanPrefill, setScanPrefill] = useState<ParsedReceipt | null>(null);
 
   const inactiveHrs = lastTxnAt ? Math.floor((Date.now() - lastTxnAt) / 3600000) : null;
   const showReminder = inactiveHrs !== null && inactiveHrs >= 24;
@@ -82,7 +85,7 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
           >
             lumens
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             <button
               onClick={onNotifications}
               className="relative w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform"
@@ -91,19 +94,20 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
               <Bell className="w-4 h-4 text-foreground" />
               <span className="absolute w-2 h-2 rounded-full bg-primary translate-x-2 -translate-y-2" />
             </button>
-            <button
-              onClick={onProfile}
-              className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
-              aria-label="Open profile"
-            >
-              {avatar
-                ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
-            </button>
+            <div className="flex flex-col items-end gap-1.5">
+              <button
+                onClick={onProfile}
+                className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
+                aria-label="Open profile"
+              >
+                {avatar
+                  ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
+              </button>
+              <PhaseToggle />
+            </div>
           </div>
         </div>
-
-        <div className="flex justify-center px-5 pt-1 pb-2"><PhaseToggle /></div>
 
         <div className="px-5 pt-2 pb-4">
           <p className="text-xs text-muted-foreground">Good morning</p>
@@ -137,7 +141,7 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
                   <p className="font-syne text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                     Total Balance
                   </p>
-                  <h2 className="font-mono-jb text-[32px] font-semibold text-foreground mt-2 tracking-tight text-balance-glow">
+                  <h2 className="font-mono-jb text-[24px] font-semibold text-foreground mt-2 tracking-tight text-balance-glow whitespace-nowrap">
                     {format(dispBalance, displayCurrency)}
                   </h2>
                 </div>
@@ -193,7 +197,7 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
         <div className="px-5 mt-5">
           <div className="grid grid-cols-4 gap-2.5">
             {[
-              { Icon: QrCode, label: "Pay", onClick: onPay, primary: true },
+              { Icon: ScanLine, label: "Scan", onClick: () => setScannerOpen(true), primary: true },
               { Icon: Send, label: "Send" },
               { Icon: Plus, label: "Add", onClick: () => setAdding(true) },
               { Icon: Repeat, label: "Swap", onClick: swapDisplayCurrency },
@@ -258,8 +262,14 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
         </div>
       </div>
 
-      {adding && <AddTransactionModal onClose={() => setAdding(false)} />}
+      {adding && <AddTransactionModal onClose={() => { setAdding(false); setScanPrefill(null); }} prefill={scanPrefill ?? undefined} />}
       {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
+      {scannerOpen && (
+        <ReceiptScanner
+          onClose={() => setScannerOpen(false)}
+          onResult={(d) => { setScannerOpen(false); setScanPrefill(d); setAdding(true); }}
+        />
+      )}
       {actionFor && (
         <ActionSheet
           tx={actionFor}
