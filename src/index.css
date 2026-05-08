@@ -57,38 +57,38 @@
   }
 
   .dark {
-    --background: 222 50% 20%;
+    --background: 222 60% 9%;
     --foreground: 220 20% 96%;
-    --card: 222 45% 22%;
+    --card: 222 55% 12%;
     --card-foreground: 220 20% 96%;
-    --popover: 222 45% 18%;
+    --popover: 222 30% 9%;
     --popover-foreground: 220 20% 96%;
     --primary: 215 100% 60%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 210 100% 70%;
     --primary-deep: 220 95% 45%;
-    --secondary: 222 35% 24%;
+    --secondary: 222 25% 14%;
     --secondary-foreground: 220 20% 96%;
-    --muted: 222 30% 26%;
-    --muted-foreground: 220 15% 70%;
-    --muted-foreground-2: 220 15% 85%;
+    --muted: 222 20% 16%;
+    --muted-foreground: 220 15% 65%;
+    --muted-foreground-2: 220 15% 80%;
     --accent: 215 100% 60%;
     --accent-foreground: 0 0% 100%;
-    --border: 220 20% 100% / 0.10;
-    --border-strong: 220 20% 100% / 0.18;
-    --input: 222 30% 26%;
+    --border: 220 20% 100% / 0.08;
+    --border-strong: 220 20% 100% / 0.14;
+    --input: 222 20% 16%;
     --ring: 215 100% 60%;
-    --gradient-card: linear-gradient(135deg, hsl(222 40% 22%) 0%, hsl(220 40% 20%) 100%);
-    --gradient-glass: linear-gradient(135deg, hsl(222 45% 22% / 0.85) 0%, hsl(222 45% 18% / 0.75) 100%);
-    --gradient-bg: radial-gradient(ellipse at top, hsl(222 55% 26%) 0%, hsl(222 50% 20%) 60%, hsl(222 55% 16%) 100%);
-    --shadow-glass: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+    --gradient-card: linear-gradient(135deg, hsl(222 30% 12%) 0%, hsl(220 30% 10%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    --gradient-bg: radial-gradient(ellipse at top, hsl(222 70% 14%) 0%, hsl(222 65% 9%) 60%, hsl(222 70% 6%) 100%);
+    --shadow-glass: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
   }
 
   .dark .glass-strong {
-    background: linear-gradient(135deg, hsl(222 45% 24% / 0.95) 0%, hsl(222 45% 20% / 0.92) 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
   }
   .dark .glass-subtle {
-    background: hsl(222 40% 22% / 0.75);
+    background: rgba(255,255,255,0.04);
   }
 }
 
