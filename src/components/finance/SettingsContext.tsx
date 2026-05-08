@@ -128,11 +128,11 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const format = useCallback(
     (amount: number, currency?: string) => {
       const code = currency ?? state.displayCurrency;
-      try {
-        return new Intl.NumberFormat(undefined, { style: "currency", currency: code, maximumFractionDigits: 2 }).format(amount);
-      } catch {
-        return `${symbolOf(code)}${amount.toFixed(2)}`;
-      }
+      const sym = symbolOf(code);
+      const sign = amount < 0 ? "-" : "";
+      const num = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(amount));
+      // Always prefix the symbol (e.g. R10.00, $10.00, €10.00)
+      return `${sign}${sym}${num}`;
     },
     [state.displayCurrency, symbolOf]
   );

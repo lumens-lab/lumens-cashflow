@@ -58,7 +58,7 @@ const AppShell = () => {
             {tab === "home" && (phase === "wallet"
               ? <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />
               : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} />)}
-            {tab === "cashflow" && (phase === "wallet" ? <RecordsScreen /> : <CashflowScreen />)}
+            {tab === "cashflow" && <CashflowScreen />}
             {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
           </div>
           {payOpen && <PayScreen onClose={() => setPayOpen(false)} />}
