@@ -82,20 +82,21 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
           <span className="text-foreground leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: "32px", letterSpacing: "-0.04em", width: "150px" }}>
             lumens
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             <button onClick={onNotifications} className="relative w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform" aria-label="Notifications">
               <Bell className="w-4 h-4 text-foreground" />
               <span className="absolute w-2 h-2 rounded-full bg-primary translate-x-2 -translate-y-2" />
             </button>
-            <button onClick={onProfile} className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform" aria-label="Open profile">
-              {avatar
-                ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
-            </button>
+            <div className="flex flex-col items-end gap-1.5">
+              <button onClick={onProfile} className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform" aria-label="Open profile">
+                {avatar
+                  ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
+              </button>
+              <PhaseToggle />
+            </div>
           </div>
         </div>
-
-        <div className="flex justify-center px-5 pt-1 pb-2"><PhaseToggle /></div>
 
         <div className="px-5 pt-2 pb-4">
           <p className="text-xs text-muted-foreground">Good morning</p>
@@ -110,7 +111,7 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-syne text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Wallet Balance</p>
-                  <h2 className="font-mono-jb text-[32px] font-semibold text-foreground mt-2 tracking-tight text-balance-glow">{format(dispBalance, displayCurrency)}</h2>
+                  <h2 className="font-mono-jb text-[24px] font-semibold text-foreground mt-2 tracking-tight text-balance-glow whitespace-nowrap">{format(dispBalance, displayCurrency)}</h2>
                 </div>
                 <button onClick={swapDisplayCurrency} disabled={ratesLoading || mainCurrency === subCurrency} className="glass rounded-2xl px-3 py-2 flex items-center gap-1.5 active:scale-95 transition-transform disabled:opacity-50">
                   <Repeat className="w-3.5 h-3.5 text-primary-glow" />
