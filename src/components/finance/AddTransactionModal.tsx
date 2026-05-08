@@ -97,7 +97,7 @@ export const AddTransactionModal = ({
       <div className="absolute inset-0 bg-black/20 backdrop-blur-md" onClick={onClose} />
       <form
         onSubmit={submit}
-        className="relative w-full max-h-[82%] overflow-y-auto no-scrollbar glass-strong rounded-t-[32px] p-5 pb-32"
+        className="relative w-full max-h-[88%] overflow-y-auto no-scrollbar glass-strong rounded-t-[32px] p-5 pb-44"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-syne text-[18px] font-bold text-foreground">
@@ -122,6 +122,22 @@ export const AddTransactionModal = ({
             </button>
           ))}
         </div>
+
+        {!editing && (
+          <button
+            type="button"
+            onClick={() => setScannerOpen(true)}
+            className="w-full mb-3 glass rounded-2xl px-4 py-3 flex items-center gap-3 active:scale-[0.99] transition-transform border border-primary/30 text-left"
+          >
+            <div className="w-10 h-10 rounded-xl gradient-primary-bg flex items-center justify-center shadow-[0_4px_16px_hsl(var(--primary)/0.4)]">
+              <ScanLine className="w-5 h-5 text-primary-foreground" strokeWidth={2.4} />
+            </div>
+            <div className="flex-1">
+              <p className="font-syne text-[11px] font-bold uppercase tracking-wider text-foreground">Receipt</p>
+              <p className="text-[11px] text-muted-foreground">Scan barcode or snap a paper receipt to auto-fill</p>
+            </div>
+          </button>
+        )}
 
         <Field label={`Amount (${mainCurrency})`}>
           <div className="flex items-center gap-2">
@@ -200,6 +216,9 @@ export const AddTransactionModal = ({
           </button>
         )}
       </form>
+      {scannerOpen && (
+        <ReceiptScanner onClose={() => setScannerOpen(false)} onResult={applyScan} />
+      )}
     </div>
   );
 };
