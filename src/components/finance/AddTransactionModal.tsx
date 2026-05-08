@@ -1,30 +1,54 @@
 import { useState } from "react";
-import { X, Trash2 } from "lucide-react";
+import { X, Trash2, ScanLine } from "lucide-react";
 import { Transaction, useTransactions } from "./TransactionsContext";
 import { useSettings } from "./SettingsContext";
+import { ReceiptScanner, ParsedReceipt } from "./ReceiptScanner";
 
 export const AddTransactionModal = ({
   onClose,
   initial,
+  prefill,
 }: {
   onClose: () => void;
   initial?: Transaction;
+  prefill?: ParsedReceipt;
 }) => {
   const { addTransaction, updateTransaction, deleteTransaction, categoriesFor, addCustomCategory } = useTransactions();
   const { accounts, mainCurrency, symbolOf } = useSettings();
   const accountNames = accounts.map((a) => a.name);
   const editing = !!initial;
   const [type, setType] = useState<"in" | "out">(initial?.type ?? "out");
-  const [amount, setAmount] = useState(initial ? String(initial.amount) : "");
-  const [vendor, setVendor] = useState(initial?.vendor ?? "");
+  const [amount, setAmount] = useState(initial ? String(initial.amount) : prefill?.amount ? String(prefill.amount) : "");
+  const [vendor, setVendor] = useState(initial?.vendor ?? prefill?.vendor ?? "");
   const initialCats = categoriesFor(initial?.type ?? "out");
+  const prefillCat = prefill?.category && initialCats.includes(prefill.category) ? prefill.category : null;
   const [category, setCategory] = useState(
-    initial?.category && initialCats.includes(initial.category) ? initial.category : initialCats[0]
+    initial?.category && initialCats.includes(initial.category)
+      ? initial.category
+      : prefillCat ?? initialCats[0]
   );
   const [account, setAccount] = useState(initial?.account ?? accountNames[0] ?? "Checking");
-  const [date, setDate] = useState(initial?.date ?? new Date().toISOString().slice(0, 10));
-  const [note, setNote] = useState(initial?.name && initial.name !== initial.vendor ? initial.name : "");
+  const [date, setDate] = useState(initial?.date ?? prefill?.date ?? new Date().toISOString().slice(0, 10));
+  const [note, setNote] = useState(
+    initial?.name && initial.name !== initial.vendor
+      ? initial.name
+      : prefill?.items?.length ? prefill.items.slice(0, 3).join(", ") : prefill?.barcode ? `Barcode: ${prefill.barcode}` : ""
+  );
   const [customName, setCustomName] = useState("");
+  const [scannerOpen, setScannerOpen] = useState(false);
+
+  const applyScan = (d: ParsedReceipt) => {
+    if (d.amount) setAmount(String(d.amount));
+    if (d.vendor) setVendor(d.vendor);
+    if (d.date) setDate(d.date);
+    if (d.category) {
+      const cats = categoriesFor(type);
+      if (cats.includes(d.category)) setCategory(d.category);
+    }
+    if (d.items?.length) setNote(d.items.slice(0, 3).join(", "));
+    else if (d.barcode) setNote(`Barcode: ${d.barcode}`);
+    setScannerOpen(false);
+  };
 
   const cats = categoriesFor(type);
   const showCustomInput = category === "Other";
