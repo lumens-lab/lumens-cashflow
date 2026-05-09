@@ -49,20 +49,22 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
   const avatar = profile?.avatar_url;
   const initial = (displayName || "?")[0]?.toUpperCase();
 
+  const cashflowTxns = useMemo(() => transactions.filter((t) => t.account !== "Wallet"), [transactions]);
+
   const { income, expense, balance, recent } = useMemo(() => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
     let inc = 0, exp = 0;
-    transactions.forEach((t) => {
+    cashflowTxns.forEach((t) => {
       if (t.date >= monthStart) {
         if (t.type === "in") inc += t.amount;
         else exp += t.amount;
       }
     });
-    const totalBalance = transactions.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
-    const recent = [...transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
+    const totalBalance = cashflowTxns.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
+    const recent = [...cashflowTxns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
     return { income: inc, expense: exp, balance: totalBalance, recent };
-  }, [transactions]);
+  }, [cashflowTxns]);
 
   // amounts are stored in mainCurrency; convert to displayCurrency for UI
   const dispBalance = convert(balance, mainCurrency, displayCurrency);
