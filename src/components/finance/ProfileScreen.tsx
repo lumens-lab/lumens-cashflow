@@ -538,24 +538,16 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
       <Section title="Settings">
         <Row Icon={Bell} label="Notifications" hint="Transactions, alerts, news" onClick={() => setPage("notifications")} />
         <Row Icon={Moon} label="Appearance" hint="Default mode follows phase" onClick={() => setPage("appearance")} />
-        <Row Icon={Database} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
-        <Row Icon={Lock} label="Passcode" hint="Off" onClick={() => setPage("settings-passcode")} />
-        <Row Icon={DollarSign} label="Main Currency Setting" hint="ZAR (R)" onClick={() => setPage("settings-currency")} />
         <Row Icon={Languages} label="Language Setting" onClick={() => setPage("settings-language")} />
       </Section>
 
-      <Section title="Other">
-        <Row Icon={HelpCircle} label="Help" />
-      </Section>
-
-      <Section title="Trans.">
-        <Row Icon={BookOpen} label="Transaction Settings" hint="Monthly Start Date, Carry-over, Period, Other" onClick={() => setPage("settings-transaction")} />
-      </Section>
-
       <Section title="Category / Accounts">
+        <Row Icon={Database} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
+        <Row Icon={DollarSign} label="Main Currency Setting" hint="Set base currency" onClick={() => setPage("settings-currency")} />
+        <Row Icon={BookOpen} label="Transaction Settings" hint="Monthly Start Date, Carry-over, Period" onClick={() => setPage("settings-transaction")} />
         <Row Icon={PiggyBank} label="Income Category Setting" onClick={() => setPage("settings-income-cat")} />
         <Row Icon={Database} label="Expenses Category Setting" onClick={() => setPage("settings-expense-cat")} />
-        <Row Icon={Wallet} label="Accounts Setting" hint="Account Group, Accounts, Include in totals, Transfer-Exclude" onClick={() => setPage("settings-accounts")} />
+        <Row Icon={Wallet} label="Accounts Setting" hint="Account Group, Accounts, Include in totals" onClick={() => setPage("settings-accounts")} />
         <Row Icon={CreditCard} label="Budget Setting" onClick={() => setPage("settings-budget")} />
       </Section>
     </div>
