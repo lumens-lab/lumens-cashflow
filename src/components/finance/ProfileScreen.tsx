@@ -124,86 +124,9 @@ export const ProfileScreen = ({ initialPage = "main" }: { initialPage?: Page } =
 
 /* ---------- Sub-pages ---------- */
 
-const PaymentMethodsPage = ({ onBack }: { onBack: () => void }) => {
-  const cards = [
-    { brand: "Visa", last4: "4242", color: "from-blue-500 to-blue-700" },
-    { brand: "Mastercard", last4: "8836", color: "from-orange-500 to-red-600" },
-    { brand: "Amex", last4: "1003", color: "from-emerald-500 to-emerald-700" },
-  ];
-  return (
-    <div className="h-full flex flex-col animate-fade-up">
-      <Header title="Payment Methods" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
-        {cards.map((c) => (
-          <div key={c.last4} className={`rounded-2xl p-5 bg-gradient-to-br ${c.color} text-white shadow-lg`}>
-            <p className="font-syne text-[10px] uppercase tracking-wider opacity-80">{c.brand}</p>
-            <p className="font-mono-jb text-[20px] mt-6 tracking-widest">•••• {c.last4}</p>
-            <p className="text-[11px] mt-2 opacity-80">Wilson Wuver · 09/28</p>
-          </div>
-        ))}
-        <button className="w-full glass rounded-2xl p-4 flex items-center justify-center gap-2 text-foreground active:scale-[0.99] transition-transform">
-          <Plus className="w-4 h-4" /> <span className="text-[13px] font-medium">Add new card</span>
-        </button>
-      </div>
-    </div>
-  );
-};
+const PaymentMethodsPage = ({ onBack }: { onBack: () => void }) => <PaymentMethodsView onBack={onBack} />;
 
-const SecurityPage = ({ onBack }: { onBack: () => void }) => {
-  const [show, setShow] = useState(false);
-  const [cur, setCur] = useState("");
-  const [next, setNext] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [twofa, setTwofa] = useState(true);
-  const [bio, setBio] = useState(true);
-  const [msg, setMsg] = useState("");
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (next.length < 8) return setMsg("Password must be at least 8 characters.");
-    if (next !== confirm) return setMsg("Passwords do not match.");
-    setMsg("Password updated successfully.");
-    setCur(""); setNext(""); setConfirm("");
-  };
-
-  return (
-    <div className="h-full flex flex-col animate-fade-up">
-      <Header title="Security" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
-        <form onSubmit={submit} className="glass-strong rounded-2xl p-4 space-y-3">
-          <h3 className="font-syne text-[12px] font-bold uppercase tracking-wider text-foreground">Change Password</h3>
-          {[
-            { label: "Current password", v: cur, set: setCur },
-            { label: "New password", v: next, set: setNext },
-            { label: "Confirm password", v: confirm, set: setConfirm },
-          ].map((f) => (
-            <div key={f.label} className="glass rounded-xl px-3 py-2.5 flex items-center gap-2">
-              <input
-                type={show ? "text" : "password"}
-                value={f.v}
-                onChange={(e) => f.set(e.target.value)}
-                placeholder={f.label}
-                maxLength={64}
-                className="flex-1 bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-          ))}
-          <button type="button" onClick={() => setShow((s) => !s)} className="text-[11px] text-primary-glow flex items-center gap-1">
-            {show ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-            {show ? "Hide" : "Show"} passwords
-          </button>
-          {msg && <p className="text-[11px] text-muted-foreground">{msg}</p>}
-          <button type="submit" className="w-full py-3 rounded-xl gradient-primary-bg text-primary-foreground font-syne font-bold text-[11px] uppercase tracking-wider">
-            Update Password
-          </button>
-        </form>
-
-        <Toggle label="Two-Factor Authentication" hint="Require a code on sign-in" value={twofa} onChange={setTwofa} />
-        <Toggle label="Biometric Unlock" hint="Use Face ID / Touch ID" value={bio} onChange={setBio} />
-      </div>
-    </div>
-  );
-};
+const SecurityPage = ({ onBack }: { onBack: () => void }) => <SecurityView onBack={onBack} />;
 
 const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
   const [s, setS] = useState({ tx: true, budget: true, news: false, security: true });
