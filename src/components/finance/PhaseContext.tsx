@@ -2,15 +2,31 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 
 export type Phase = "cashflow" | "wallet";
 const KEY = "lumens.phase";
+const PIN_KEY = "lumens.walletPinRequired";
 
-const Ctx = createContext<{ phase: Phase; setPhase: (p: Phase) => void } | null>(null);
+interface Ctx {
+  phase: Phase;
+  setPhase: (p: Phase) => void;
+  walletPinRequired: boolean;
+  setWalletPinRequired: (v: boolean) => void;
+}
+
+const Ctx = createContext<Ctx | null>(null);
 
 export const PhaseProvider = ({ children }: { children: ReactNode }) => {
   const [phase, setPhaseState] = useState<Phase>(() => {
     try { return (localStorage.getItem(KEY) as Phase) || "cashflow"; } catch { return "cashflow"; }
   });
+  const [walletPinRequired, setWalletPinRequiredState] = useState<boolean>(() => {
+    try { return localStorage.getItem(PIN_KEY) === "1"; } catch { return false; }
+  });
   useEffect(() => { localStorage.setItem(KEY, phase); }, [phase]);
-  return <Ctx.Provider value={{ phase, setPhase: setPhaseState }}>{children}</Ctx.Provider>;
+  useEffect(() => { localStorage.setItem(PIN_KEY, walletPinRequired ? "1" : "0"); }, [walletPinRequired]);
+  return (
+    <Ctx.Provider value={{ phase, setPhase: setPhaseState, walletPinRequired, setWalletPinRequired: setWalletPinRequiredState }}>
+      {children}
+    </Ctx.Provider>
+  );
 };
 
 export const usePhase = () => {

@@ -15,7 +15,8 @@ const startOfWeek = (d: Date) => {
 };
 
 export const CashflowScreen = () => {
-  const { transactions } = useTransactions();
+  const { transactions: allTransactions } = useTransactions();
+  const transactions = useMemo(() => allTransactions.filter((t) => t.account !== "Wallet"), [allTransactions]);
   const [range, setRange] = useState<Range>("weekly");
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterMode, setFilterMode] = useState<FilterMode>("date");

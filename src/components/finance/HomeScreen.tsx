@@ -1,4 +1,4 @@
-import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Wallet } from "lucide-react";
 import { useTransactions, Transaction } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
 import { useSettings } from "./SettingsContext";
@@ -30,9 +30,10 @@ interface Props {
   onPay: () => void;
   onProfile: () => void;
   onNotifications: () => void;
+  onEnterWallet?: () => void;
 }
 
-export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
+export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }: Props) => {
   const { transactions, lastTxnAt } = useTransactions();
   const { user, profile } = useAuth();
   const { mainCurrency, subCurrency, displayCurrency, swapDisplayCurrency, convert, format, ratesLoading } = useSettings();
@@ -48,20 +49,22 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
   const avatar = profile?.avatar_url;
   const initial = (displayName || "?")[0]?.toUpperCase();
 
+  const cashflowTxns = useMemo(() => transactions.filter((t) => t.account !== "Wallet"), [transactions]);
+
   const { income, expense, balance, recent } = useMemo(() => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
     let inc = 0, exp = 0;
-    transactions.forEach((t) => {
+    cashflowTxns.forEach((t) => {
       if (t.date >= monthStart) {
         if (t.type === "in") inc += t.amount;
         else exp += t.amount;
       }
     });
-    const totalBalance = transactions.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
-    const recent = [...transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
+    const totalBalance = cashflowTxns.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
+    const recent = [...cashflowTxns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
     return { income: inc, expense: exp, balance: totalBalance, recent };
-  }, [transactions]);
+  }, [cashflowTxns]);
 
   // amounts are stored in mainCurrency; convert to displayCurrency for UI
   const dispBalance = convert(balance, mainCurrency, displayCurrency);
@@ -85,27 +88,17 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
           >
             lumens
           </span>
-          <div className="flex items-start gap-2">
+          <div className="flex flex-col items-end gap-1.5">
+            <PhaseToggle />
             <button
-              onClick={onNotifications}
-              className="relative w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform"
-              aria-label="Notifications"
+              onClick={onProfile}
+              className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
+              aria-label="Open profile"
             >
-              <Bell className="w-4 h-4 text-foreground" />
-              <span className="absolute w-2 h-2 rounded-full bg-primary translate-x-2 -translate-y-2" />
+              {avatar
+                ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
             </button>
-            <div className="flex flex-col items-end gap-1.5">
-              <button
-                onClick={onProfile}
-                className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
-                aria-label="Open profile"
-              >
-                {avatar
-                  ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
-                  : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
-              </button>
-              <PhaseToggle />
-            </div>
           </div>
         </div>
 
