@@ -15,30 +15,35 @@ import { AuthProvider, useAuth } from "@/components/finance/AuthContext";
 import { AuthScreen } from "@/components/finance/AuthScreen";
 import { PhaseProvider, usePhase } from "@/components/finance/PhaseContext";
 import { RecipientsProvider } from "@/components/finance/RecipientsContext";
+import { CardsProvider } from "@/components/finance/CardsContext";
+import { PinSheet } from "@/components/finance/PinSheet";
 
 const AppShell = () => {
   const { user, loading } = useAuth();
-  const { phase, setPhase } = usePhase();
-  const { mode, setMode } = useTheme();
+  const { phase, setPhase, walletPinRequired } = usePhase();
+  const { setMode } = useTheme();
   const [tab, setTab] = useState<Tab>("home");
   const [payOpen, setPayOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState<"main" | "notifications">("main");
+  const [pendingWalletEntry, setPendingWalletEntry] = useState(false);
 
-  // Default-mode rule: white in cashflow, dark navy in wallet.
-  // Apply when phase changes (always, to honor request).
   useEffect(() => {
     setMode(phase === "wallet" ? "dark" : "light");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
-  const handleNav = (t: Tab) => {
-    if (t === "pay") { setPayOpen(true); return; }
-    if (t === "wallet") {
-      // Wallet icon = access route to wallet phase
-      setPhase("wallet");
-      setTab("home");
+  const enterWallet = () => {
+    if (walletPinRequired && phase !== "wallet") {
+      setPendingWalletEntry(true);
       return;
     }
+    setPhase("wallet");
+    setTab("home");
+  };
+
+  const handleNav = (t: Tab) => {
+    if (t === "pay") { setPayOpen(true); return; }
+    if (t === "wallet") { enterWallet(); return; }
     if (t === "profile") setProfileInitial("main");
     setTab(t);
   };
@@ -57,12 +62,18 @@ const AppShell = () => {
           <div className="absolute inset-0 pt-[44px]">
             {tab === "home" && (phase === "wallet"
               ? <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />
-              : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} />)}
+              : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} onEnterWallet={enterWallet} />)}
             {tab === "cashflow" && <CashflowScreen />}
             {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
           </div>
           {payOpen && <PayScreen onClose={() => setPayOpen(false)} />}
           <BottomNav active={tab} onChange={handleNav} />
+          {pendingWalletEntry && (
+            <PinSheet
+              onClose={() => setPendingWalletEntry(false)}
+              onSuccess={() => { setPendingWalletEntry(false); setPhase("wallet"); setTab("home"); }}
+            />
+          )}
         </>
       )}
     </PhoneFrame>
@@ -75,12 +86,14 @@ const Index = () => (
       <SettingsProvider>
         <TransactionsProvider>
           <RecipientsProvider>
-            <PhaseProvider>
-              <main>
-                <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
-                <AppShell />
-              </main>
-            </PhaseProvider>
+            <CardsProvider>
+              <PhaseProvider>
+                <main>
+                  <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+                  <AppShell />
+                </main>
+              </PhaseProvider>
+            </CardsProvider>
           </RecipientsProvider>
         </TransactionsProvider>
       </SettingsProvider>
