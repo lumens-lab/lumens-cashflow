@@ -1,4 +1,4 @@
-import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Wallet } from "lucide-react";
 import { useTransactions, Transaction } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
 import { useSettings } from "./SettingsContext";
@@ -30,9 +30,10 @@ interface Props {
   onPay: () => void;
   onProfile: () => void;
   onNotifications: () => void;
+  onEnterWallet?: () => void;
 }
 
-export const HomeScreen = ({ onPay, onProfile, onNotifications }: Props) => {
+export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }: Props) => {
   const { transactions, lastTxnAt } = useTransactions();
   const { user, profile } = useAuth();
   const { mainCurrency, subCurrency, displayCurrency, swapDisplayCurrency, convert, format, ratesLoading } = useSettings();
