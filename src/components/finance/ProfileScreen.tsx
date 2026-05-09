@@ -6,6 +6,7 @@ import { CATEGORIES, useTransactions } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
 import { usePhase } from "./PhaseContext";
 import { ProfileEditSheet } from "./ProfileEditSheet";
+import { PaymentMethodsView, SecurityView } from "./SecurityAndCardsViews";
 
 type Page =
   | "main"
