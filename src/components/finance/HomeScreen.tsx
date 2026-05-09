@@ -88,27 +88,17 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
           >
             lumens
           </span>
-          <div className="flex items-start gap-2">
+          <div className="flex flex-col items-end gap-1.5">
+            <PhaseToggle />
             <button
-              onClick={onNotifications}
-              className="relative w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform"
-              aria-label="Notifications"
+              onClick={onProfile}
+              className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
+              aria-label="Open profile"
             >
-              <Bell className="w-4 h-4 text-foreground" />
-              <span className="absolute w-2 h-2 rounded-full bg-primary translate-x-2 -translate-y-2" />
+              {avatar
+                ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
             </button>
-            <div className="flex flex-col items-end gap-1.5">
-              <button
-                onClick={onProfile}
-                className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
-                aria-label="Open profile"
-              >
-                {avatar
-                  ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
-                  : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
-              </button>
-              <PhaseToggle />
-            </div>
           </div>
         </div>
 
