@@ -10,7 +10,8 @@ const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
 export const RecordsScreen = () => {
-  const { transactions } = useTransactions();
+  const { transactions: allTransactions } = useTransactions();
+  const transactions = useMemo(() => allTransactions.filter((t) => t.account !== "Wallet"), [allTransactions]);
   const { mainCurrency, displayCurrency, convert, format } = useSettings();
   const [tab, setTab] = useState<Tab>("all");
   const [query, setQuery] = useState("");
