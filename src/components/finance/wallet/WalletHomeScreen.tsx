@@ -1,9 +1,9 @@
-import { ArrowUp, ArrowDown, Send, ArrowDownToLine, ArrowUpFromLine, Repeat2, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Repeat, Plus, X } from "lucide-react";
+import { ArrowUp, ArrowDown, Send, ArrowDownToLine, ArrowUpFromLine, Repeat2, ShoppingBag, Coffee, Briefcase, Zap, Tag, Repeat, Plus, X } from "lucide-react";
 import { useTransactions, Transaction } from "../TransactionsContext";
 import { useAuth } from "../AuthContext";
 import { useSettings } from "../SettingsContext";
 import { useRecipients, Recipient } from "../RecipientsContext";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AddTransactionModal } from "../AddTransactionModal";
 import { PhaseToggle } from "../PhaseToggle";
 import { TransferSheet } from "./TransferSheet";
@@ -11,6 +11,8 @@ import { DepositSheet } from "./DepositSheet";
 import { WithdrawSheet } from "./WithdrawSheet";
 import { SwapScreen } from "./SwapScreen";
 import { AddRecipientSheet } from "./AddRecipientSheet";
+import { CryptoIcon } from "./CryptoIcon";
+import { CRYPTOS, fetchCryptoPricesUSD } from "@/lib/cryptoRates";
 
 const iconFor = (cat: string) => {
   switch (cat) {
@@ -21,6 +23,7 @@ const iconFor = (cat: string) => {
     case "Transfer": return { Icon: Send, color: "text-primary-glow", bg: "bg-primary/15" };
     case "Swap": return { Icon: Repeat2, color: "text-primary-glow", bg: "bg-primary/15" };
     case "Withdraw": return { Icon: ArrowUpFromLine, color: "text-warning", bg: "bg-warning/15" };
+    case "Deposit": return { Icon: ArrowDownToLine, color: "text-success", bg: "bg-success/15" };
     default: return { Icon: Tag, color: "text-foreground", bg: "bg-muted" };
   }
 };
@@ -41,7 +44,7 @@ interface Props {
 
 type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap" | "addRecipient";
 
-export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
+export const WalletHomeScreen = ({ onProfile }: Props) => {
   const { transactions } = useTransactions();
   const { user, profile } = useAuth();
   const { mainCurrency, subCurrency, displayCurrency, swapDisplayCurrency, convert, format, ratesLoading } = useSettings();
@@ -50,23 +53,29 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
   const [transferPrefill, setTransferPrefill] = useState<Recipient | null>(null);
   const [actionFor, setActionFor] = useState<Transaction | null>(null);
   const [editing, setEditing] = useState<Transaction | null>(null);
+  const [showAllRecipients, setShowAllRecipients] = useState(false);
+  const [prices, setPrices] = useState<Record<string, number>>({});
+
+  useEffect(() => { fetchCryptoPricesUSD().then(setPrices); }, []);
 
   const displayName = profile?.display_name || (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "there";
+
+  const walletTxns = useMemo(() => transactions.filter((t) => t.account === "Wallet"), [transactions]);
 
   const { income, expense, balance, recent } = useMemo(() => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
     let inc = 0, exp = 0;
-    transactions.forEach((t) => {
+    walletTxns.forEach((t) => {
       if (t.date >= monthStart) {
         if (t.type === "in") inc += t.amount;
         else exp += t.amount;
       }
     });
-    const totalBalance = transactions.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
-    const recent = [...transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
+    const totalBalance = walletTxns.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
+    const recent = [...walletTxns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
     return { income: inc, expense: exp, balance: totalBalance, recent };
-  }, [transactions]);
+  }, [walletTxns]);
 
   const dispBalance = convert(balance, mainCurrency, displayCurrency);
   const dispIncome = convert(income, mainCurrency, displayCurrency);
@@ -75,6 +84,8 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
   const avatar = profile?.avatar_url;
   const initial = (displayName || "?")[0]?.toUpperCase();
 
+  const visibleRecipients = showAllRecipients ? recipients : recipients.slice(0, 4);
+
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
@@ -82,19 +93,13 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
           <span className="text-foreground leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: "32px", letterSpacing: "-0.04em", width: "150px" }}>
             lumens
           </span>
-          <div className="flex items-start gap-2">
-            <button onClick={onNotifications} className="relative w-10 h-10 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform" aria-label="Notifications">
-              <Bell className="w-4 h-4 text-foreground" />
-              <span className="absolute w-2 h-2 rounded-full bg-primary translate-x-2 -translate-y-2" />
+          <div className="flex flex-col items-end gap-1.5">
+            <PhaseToggle />
+            <button onClick={onProfile} className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform" aria-label="Open profile">
+              {avatar
+                ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
             </button>
-            <div className="flex flex-col items-end gap-1.5">
-              <button onClick={onProfile} className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform" aria-label="Open profile">
-                {avatar
-                  ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
-                  : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
-              </button>
-              <PhaseToggle />
-            </div>
           </div>
         </div>
 
@@ -170,10 +175,17 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
         <div className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recipients</h3>
-            <button onClick={() => setSheet("addRecipient")} className="text-[11px] text-primary-glow font-medium">+ Add</button>
+            <div className="flex items-center gap-3">
+              {recipients.length > 4 && (
+                <button onClick={() => setShowAllRecipients((v) => !v)} className="text-[11px] text-primary-glow font-medium">
+                  {showAllRecipients ? "Show less" : "See all"}
+                </button>
+              )}
+              <button onClick={() => setSheet("addRecipient")} className="text-[11px] text-primary-glow font-medium">+ Add</button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            {recipients.slice(0, 4).map((r) => (
+            {visibleRecipients.map((r) => (
               <button
                 key={r.id}
                 onClick={() => { setTransferPrefill(r); setSheet("transfer"); }}
@@ -208,15 +220,41 @@ export const WalletHomeScreen = ({ onProfile, onNotifications }: Props) => {
           </div>
         </div>
 
-        {/* Recent transactions */}
+        {/* Assets */}
         <div className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Activity</h3>
+            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Assets</h3>
+            <button onClick={() => setSheet("swap")} className="text-[11px] text-primary-glow font-medium">Swap</button>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            {CRYPTOS.map((c) => {
+              const usd = prices[c.code] ?? 0;
+              const local = convert(usd, "USD", displayCurrency);
+              return (
+                <button key={c.code} onClick={() => setSheet("deposit")} className="glass rounded-2xl p-3 flex items-center gap-3 active:scale-[0.99] transition-transform text-left">
+                  <CryptoIcon code={c.code} size={36} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-semibold text-foreground truncate">{c.code}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{c.name}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono-jb text-[12px] font-semibold text-foreground">{usd ? format(local, displayCurrency) : "—"}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Recent Wallet History */}
+        <div className="px-5 mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Wallet History</h3>
             <button className="text-[11px] text-primary-glow font-medium">See all</button>
           </div>
           <div className="space-y-2">
             {recent.length === 0 && (
-              <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">No transactions yet.</div>
+              <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">No wallet activity yet.</div>
             )}
             {recent.map((tx) => {
               const { Icon, color, bg } = iconFor(tx.category);
