@@ -13,6 +13,7 @@ import { SwapScreen } from "./SwapScreen";
 import { AddRecipientSheet } from "./AddRecipientSheet";
 import { CryptoIcon } from "./CryptoIcon";
 import { CRYPTOS, fetchCryptoPricesUSD } from "@/lib/cryptoRates";
+import lumensLogoNavy from "@/assets/lumens-logo-navy.png";
 
 const iconFor = (cat: string) => {
   switch (cat) {
