@@ -326,3 +326,63 @@ const ActionSheet = ({
     </div>
   );
 };
+
+const AllActivitySheet = ({
+  title,
+  txns,
+  onClose,
+  onSelect,
+}: {
+  title: string;
+  txns: Transaction[];
+  onClose: () => void;
+  onSelect: (t: Transaction) => void;
+}) => {
+  const { format, displayCurrency, mainCurrency, convert } = useSettings();
+  return (
+    <div className="absolute inset-0 z-[65] flex items-end animate-fade-up">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-h-[88%] glass-strong rounded-t-[32px] p-5 pb-44 overflow-y-auto no-scrollbar">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-syne text-[16px] font-bold text-foreground">{title}</h3>
+          <button onClick={onClose} className="w-9 h-9 rounded-xl glass flex items-center justify-center" aria-label="Close">
+            <X className="w-4 h-4 text-foreground" />
+          </button>
+        </div>
+        <p className="text-[11px] text-muted-foreground mb-3">{txns.length} record{txns.length === 1 ? "" : "s"}</p>
+        <div className="space-y-2">
+          {txns.length === 0 && (
+            <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">No records yet.</div>
+          )}
+          {txns.map((tx) => {
+            const { Icon, color, bg } = iconFor(tx.category);
+            const dispAmt = convert(tx.amount, mainCurrency, displayCurrency);
+            const hasNote = tx.name && tx.name !== tx.vendor;
+            return (
+              <button
+                key={tx.id}
+                onClick={() => onSelect(tx)}
+                className="w-full glass rounded-2xl p-3.5 flex items-start gap-3 active:scale-[0.99] transition-transform text-left"
+              >
+                <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
+                  <Icon className={`w-5 h-5 ${color}`} strokeWidth={2.2} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold text-foreground truncate">{tx.vendor}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{tx.category}</p>
+                  <p className="text-[11px] text-muted-foreground/80 italic truncate">{hasNote ? tx.name : "—"}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className={`font-mono-jb text-[14px] font-semibold ${tx.type === "in" ? "text-success" : "text-foreground"}`}>
+                    {tx.type === "in" ? "+" : "−"}{format(dispAmt, displayCurrency)}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{new Date(tx.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
