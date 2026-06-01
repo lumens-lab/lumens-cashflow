@@ -79,19 +79,12 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
     <div className="h-full flex flex-col animate-fade-up">
       <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <span
-            className="text-foreground leading-none"
-            style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 800,
-              fontSize: "32px",
-              letterSpacing: "-0.04em",
-              width: "150px",
-              display: "inline-block",
-            }}
-          >
-            lumens
-          </span>
+          <img
+            src={lumensLogoWhite}
+            alt="Lumens"
+            className="h-10 w-auto object-contain"
+            style={{ filter: "drop-shadow(0 1px 2px hsl(213 100% 60% / 0.3))" }}
+          />
           <div className="flex flex-col items-end gap-1.5">
             <PhaseToggle />
             <button
