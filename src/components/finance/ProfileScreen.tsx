@@ -272,6 +272,7 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
   if (page === "settings-currency") return <CurrencyPage onBack={back} kind="main" />;
   if (page === "settings-budget") return <BudgetPage onBack={back} />;
   if (page === "settings-accounts") return <AccountsPage onBack={back} />;
+  if (page === "settings-backup") return <BackupPage onBack={back} />;
 
   const sub: Partial<Record<Page, { title: string; rows: { label: string; hint?: string; value?: string }[] }>> = {
     "settings-transaction": { title: "Transaction Settings", rows: [
