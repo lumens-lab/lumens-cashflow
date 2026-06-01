@@ -255,13 +255,17 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
         <div className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Wallet History</h3>
-            <button className="text-[11px] text-primary-glow font-medium">See all</button>
+            {recent.length > 6 && (
+              <button onClick={() => setShowAllHistory((v) => !v)} className="text-[11px] text-primary-glow font-medium">
+                {showAllHistory ? "Show less" : "See all"}
+              </button>
+            )}
           </div>
           <div className="space-y-2">
             {recent.length === 0 && (
               <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">No wallet activity yet.</div>
             )}
-            {recent.map((tx) => {
+            {(showAllHistory ? recent : recent.slice(0, 6)).map((tx) => {
               const { Icon, color, bg } = iconFor(tx.category);
               const dispAmt = convert(tx.amount, mainCurrency, displayCurrency);
               return (
