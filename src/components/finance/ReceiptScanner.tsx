@@ -195,7 +195,7 @@ export const ReceiptScanner = ({ onResult, onClose }: Props) => {
         <div className="mx-5 mb-3 bg-destructive/90 text-white p-3 rounded-2xl text-[12px] text-center">{error}</div>
       )}
 
-      <div className="px-5 pb-10 pt-3 bg-black flex items-center justify-center gap-4">
+      <div className="px-5 pb-24 pt-4 bg-black flex items-center justify-center gap-4">
         {mode === "photo" && !preview && (
           <>
             <button onClick={() => fileRef.current?.click()} className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center" aria-label="Upload">
