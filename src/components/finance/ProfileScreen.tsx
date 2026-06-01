@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, Lock, BookOpen, Database, Trash2, Check, Languages, Pencil } from "lucide-react";
+import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, Lock, BookOpen, Database, Trash2, Check, Languages, Pencil, FileSpreadsheet, FileText, FileDown } from "lucide-react";
 import { useTheme } from "./ThemeContext";
 import { CURRENCIES, useSettings } from "./SettingsContext";
 import { CATEGORIES, useTransactions } from "./TransactionsContext";
@@ -7,6 +7,7 @@ import { useAuth } from "./AuthContext";
 import { usePhase } from "./PhaseContext";
 import { ProfileEditSheet } from "./ProfileEditSheet";
 import { PaymentMethodsView, SecurityView } from "./SecurityAndCardsViews";
+import { exportCSV, exportXLSX, exportPDF } from "@/lib/backup";
 
 type Page =
   | "main"
