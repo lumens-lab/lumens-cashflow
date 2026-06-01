@@ -1,4 +1,4 @@
-import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Wallet } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Wallet, X } from "lucide-react";
 import { useTransactions, Transaction } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
 import { useSettings } from "./SettingsContext";
@@ -6,6 +6,7 @@ import { PhaseToggle } from "./PhaseToggle";
 import { useMemo, useState } from "react";
 import { AddTransactionModal } from "./AddTransactionModal";
 import { ReceiptScanner, ParsedReceipt } from "./ReceiptScanner";
+import lumensLogoWhite from "@/assets/lumens-logo-white.png";
 
 const iconFor = (cat: string) => {
   switch (cat) {
