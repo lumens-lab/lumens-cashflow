@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { TrendingUp, TrendingDown, ArrowUpRight, Filter, Check } from "lucide-react";
+import { TrendingUp, TrendingDown, ArrowUpRight, Filter, Check, Plus, Trash2, CalendarClock, Bell } from "lucide-react";
 import { CATEGORIES, useTransactions } from "./TransactionsContext";
 import { useSettings } from "./SettingsContext";
+import { useDebitOrders } from "./useDebitOrders";
 
 type Range = "weekly" | "monthly" | "yearly";
 type FilterMode = "date" | "category" | "account";
