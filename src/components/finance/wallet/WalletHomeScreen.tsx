@@ -74,7 +74,7 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
       }
     });
     const totalBalance = walletTxns.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
-    const recent = [...walletTxns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
+    const recent = [...walletTxns].sort((a, b) => b.date.localeCompare(a.date));
     return { income: inc, expense: exp, balance: totalBalance, recent };
   }, [walletTxns]);
 
