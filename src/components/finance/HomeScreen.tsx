@@ -210,36 +210,38 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
           </div>
         </div>
 
-        {/* Recent transactions */}
+        {/* Recent transactions (this month) */}
         <div className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Activity</h3>
-            <button className="text-[11px] text-primary-glow font-medium">See all</button>
+            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Activity · This Month</h3>
+            <button onClick={() => setSeeAll(true)} className="text-[11px] text-primary-glow font-medium">See all</button>
           </div>
 
           <div className="space-y-2">
             {recent.length === 0 && (
               <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">
-                No transactions yet. Tap + to add one.
+                No transactions this month. Tap + to add one.
               </div>
             )}
             {recent.map((tx) => {
               const { Icon, color, bg } = iconFor(tx.category);
               const dispAmt = convert(tx.amount, mainCurrency, displayCurrency);
+              const hasNote = tx.name && tx.name !== tx.vendor;
               return (
                 <button
                   key={tx.id}
                   onClick={() => setActionFor(tx)}
-                  className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform text-left"
+                  className="w-full glass rounded-2xl p-3.5 flex items-start gap-3 active:scale-[0.99] transition-transform text-left"
                 >
-                  <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center`}>
+                  <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
                     <Icon className={`w-5 h-5 ${color}`} strokeWidth={2.2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-foreground truncate">{tx.name}</p>
-                    <p className="text-[11px] text-muted-foreground">{tx.category}</p>
+                    <p className="text-[13px] font-semibold text-foreground truncate">{tx.vendor}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{tx.category}</p>
+                    <p className="text-[11px] text-muted-foreground/80 italic truncate">{hasNote ? tx.name : "—"}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <p className={`font-mono-jb text-[14px] font-semibold ${tx.type === "in" ? "text-success" : "text-foreground"}`}>
                       {tx.type === "in" ? "+" : "−"}{format(dispAmt, displayCurrency)}
                     </p>
@@ -251,6 +253,15 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
           </div>
         </div>
       </div>
+
+      {seeAll && (
+        <AllActivitySheet
+          title="All Activity"
+          txns={allSorted}
+          onClose={() => setSeeAll(false)}
+          onSelect={(t) => { setSeeAll(false); setActionFor(t); }}
+        />
+      )}
 
       {adding && <AddTransactionModal onClose={() => { setAdding(false); setScanPrefill(null); }} prefill={scanPrefill ?? undefined} />}
       {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
