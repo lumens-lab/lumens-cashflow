@@ -13,6 +13,7 @@ import { SwapScreen } from "./SwapScreen";
 import { AddRecipientSheet } from "./AddRecipientSheet";
 import { CryptoIcon } from "./CryptoIcon";
 import { CRYPTOS, fetchCryptoPricesUSD } from "@/lib/cryptoRates";
+import lumensLogoNavy from "@/assets/lumens-logo-navy.png";
 
 const iconFor = (cat: string) => {
   switch (cat) {
@@ -54,6 +55,7 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
   const [actionFor, setActionFor] = useState<Transaction | null>(null);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [showAllRecipients, setShowAllRecipients] = useState(false);
+  const [showAllHistory, setShowAllHistory] = useState(false);
   const [prices, setPrices] = useState<Record<string, number>>({});
 
   useEffect(() => { fetchCryptoPricesUSD().then(setPrices); }, []);
@@ -73,7 +75,7 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
       }
     });
     const totalBalance = walletTxns.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
-    const recent = [...walletTxns].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
+    const recent = [...walletTxns].sort((a, b) => b.date.localeCompare(a.date));
     return { income: inc, expense: exp, balance: totalBalance, recent };
   }, [walletTxns]);
 
@@ -90,9 +92,12 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
     <div className="h-full flex flex-col animate-fade-up">
       <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
         <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <span className="text-foreground leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: "32px", letterSpacing: "-0.04em", width: "150px" }}>
-            lumens
-          </span>
+          <img
+            src={lumensLogoNavy}
+            alt="Lumens"
+            className="h-10 w-auto object-contain rounded-md"
+            style={{ filter: "drop-shadow(0 0 10px hsl(213 100% 60% / 0.5))" }}
+          />
           <div className="flex flex-col items-end gap-1.5">
             <PhaseToggle />
             <button onClick={onProfile} className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform" aria-label="Open profile">
@@ -250,13 +255,17 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
         <div className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Wallet History</h3>
-            <button className="text-[11px] text-primary-glow font-medium">See all</button>
+            {recent.length > 6 && (
+              <button onClick={() => setShowAllHistory((v) => !v)} className="text-[11px] text-primary-glow font-medium">
+                {showAllHistory ? "Show less" : "See all"}
+              </button>
+            )}
           </div>
           <div className="space-y-2">
             {recent.length === 0 && (
               <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">No wallet activity yet.</div>
             )}
-            {recent.map((tx) => {
+            {(showAllHistory ? recent : recent.slice(0, 6)).map((tx) => {
               const { Icon, color, bg } = iconFor(tx.category);
               const dispAmt = convert(tx.amount, mainCurrency, displayCurrency);
               return (

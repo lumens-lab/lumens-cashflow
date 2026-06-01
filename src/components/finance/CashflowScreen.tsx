@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { TrendingUp, TrendingDown, ArrowUpRight, Filter, Check } from "lucide-react";
+import { TrendingUp, TrendingDown, ArrowUpRight, Filter, Check, Plus, Trash2, CalendarClock, Bell } from "lucide-react";
 import { CATEGORIES, useTransactions } from "./TransactionsContext";
 import { useSettings } from "./SettingsContext";
+import { useDebitOrders } from "./useDebitOrders";
 
 type Range = "weekly" | "monthly" | "yearly";
 type FilterMode = "date" | "category" | "account";
@@ -321,6 +322,225 @@ export const CashflowScreen = () => {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Budget */}
+        <BudgetBlock />
+
+        {/* Debit Orders */}
+        <DebitOrdersBlock />
+      </div>
+    </div>
+  );
+};
+
+const BudgetBlock = () => {
+  const { transactions } = useTransactions();
+  const { budget, mainCurrency, displayCurrency, convert, format } = useSettings();
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  const spent = transactions
+    .filter((t) => t.account !== "Wallet" && t.type === "out" && t.date >= monthStart)
+    .reduce((s, t) => s + t.amount, 0);
+  const monthly = budget?.monthly || 0;
+  const pct = monthly > 0 ? Math.min(100, (spent / monthly) * 100) : 0;
+  const left = Math.max(0, monthly - spent);
+  const over = spent > monthly && monthly > 0;
+  const alertPct = budget?.alertThresholdPct ?? 80;
+  const near = monthly > 0 && pct >= alertPct && !over;
+
+  const perCat = budget?.perCategory ?? {};
+  const catNames = Object.keys(perCat).filter((c) => perCat[c] > 0);
+
+  return (
+    <div className="px-5 mt-4">
+      <div className="glass-strong rounded-3xl p-5 relative overflow-hidden">
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+        <div className="relative">
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-syne text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Monthly Budget</p>
+            <span className={`font-syne text-[10px] font-bold uppercase tracking-wider ${over ? "text-destructive" : near ? "text-warning" : "text-primary-glow"}`}>
+              {over ? "Over" : `${Math.round(pct)}%`}
+            </span>
+          </div>
+          {monthly === 0 ? (
+            <p className="text-[12px] text-muted-foreground">Set a monthly budget in Settings → Budget Setting to track progress.</p>
+          ) : (
+            <>
+              <div className="flex items-baseline justify-between">
+                <p className="font-mono-jb text-[20px] font-semibold text-foreground">
+                  {format(convert(spent, mainCurrency, displayCurrency), displayCurrency)}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  of {format(convert(monthly, mainCurrency, displayCurrency), displayCurrency)}
+                </p>
+              </div>
+              <div className="h-2 mt-3 rounded-full bg-muted overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${over ? "bg-destructive" : near ? "bg-warning" : "gradient-primary-bg"}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <p className={`mt-2 text-[11px] ${over ? "text-destructive" : "text-muted-foreground"}`}>
+                {over
+                  ? `Over by ${format(convert(spent - monthly, mainCurrency, displayCurrency), displayCurrency)}`
+                  : `${format(convert(left, mainCurrency, displayCurrency), displayCurrency)} left to spend`}
+              </p>
+              {catNames.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {catNames.slice(0, 4).map((cat) => {
+                    const catSpent = transactions
+                      .filter((t) => t.account !== "Wallet" && t.type === "out" && t.date >= monthStart && t.category === cat)
+                      .reduce((s, t) => s + t.amount, 0);
+                    const cp = Math.min(100, (catSpent / perCat[cat]) * 100);
+                    return (
+                      <div key={cat}>
+                        <div className="flex items-center justify-between text-[11px] mb-1">
+                          <span className="text-foreground">{cat}</span>
+                          <span className="font-mono-jb text-muted-foreground">
+                            {format(convert(catSpent, mainCurrency, displayCurrency), displayCurrency)} / {format(convert(perCat[cat], mainCurrency, displayCurrency), displayCurrency)}
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className={`h-full ${cp >= 100 ? "bg-destructive" : "bg-primary"}`} style={{ width: `${cp}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DebitOrdersBlock = () => {
+  const { list, add, remove, markPaid, undoPaid } = useDebitOrders();
+  const { mainCurrency, displayCurrency, convert, format, symbolOf } = useSettings();
+  const [adding, setAdding] = useState(false);
+  const [payee, setPayee] = useState("");
+  const [amount, setAmount] = useState("");
+  const [day, setDay] = useState("1");
+  const [category, setCategory] = useState("Utilities");
+  const [notifyDays, setNotifyDays] = useState("3");
+
+  const submit = () => {
+    const amt = parseFloat(amount);
+    const d = Math.min(31, Math.max(1, parseInt(day) || 1));
+    const nd = Math.max(0, parseInt(notifyDays) || 0);
+    if (!payee.trim() || !amt) return;
+    add({ payee: payee.trim(), amount: amt, dayOfMonth: d, category, notifyDaysBefore: nd });
+    setPayee(""); setAmount(""); setDay("1"); setNotifyDays("3"); setAdding(false);
+  };
+
+  return (
+    <div className="px-5 mt-4 mb-2">
+      <div className="glass-strong rounded-3xl p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <CalendarClock className="w-4 h-4 text-primary-glow" />
+            <p className="font-syne text-[10px] font-bold uppercase tracking-wider text-foreground">Debit Orders</p>
+          </div>
+          <button
+            onClick={() => setAdding((v) => !v)}
+            className="w-8 h-8 rounded-xl glass flex items-center justify-center active:scale-95 transition-transform"
+            aria-label="Add debit order"
+          >
+            <Plus className="w-4 h-4 text-primary-glow" />
+          </button>
+        </div>
+
+        {adding && (
+          <div className="glass rounded-2xl p-3 mb-3 space-y-2">
+            <input
+              value={payee}
+              onChange={(e) => setPayee(e.target.value)}
+              placeholder="Payee (e.g. Eskom)"
+              className="w-full bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground glass rounded-xl px-3 py-2"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="glass rounded-xl px-3 py-2 flex items-center gap-1">
+                <span className="text-muted-foreground text-[12px]">{symbolOf(mainCurrency)}</span>
+                <input
+                  type="number" min="0" step="0.01"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Amount"
+                  className="w-full bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+              <input
+                type="number" min="1" max="31"
+                value={day}
+                onChange={(e) => setDay(e.target.value)}
+                placeholder="Day of month"
+                className="bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground glass rounded-xl px-3 py-2"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <select value={category} onChange={(e) => setCategory(e.target.value)} className="bg-transparent outline-none text-[13px] text-foreground glass rounded-xl px-3 py-2">
+                {CATEGORIES.filter((c) => c !== "Income").map((c) => <option key={c}>{c}</option>)}
+              </select>
+              <input
+                type="number" min="0" max="14"
+                value={notifyDays}
+                onChange={(e) => setNotifyDays(e.target.value)}
+                placeholder="Notify days before"
+                className="bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground glass rounded-xl px-3 py-2"
+              />
+            </div>
+            <button
+              onClick={submit}
+              className="w-full py-2.5 rounded-xl gradient-primary-bg text-primary-foreground font-syne font-bold text-[11px] uppercase tracking-wider"
+            >
+              Save Debit Order
+            </button>
+          </div>
+        )}
+
+        {list.length === 0 && !adding && (
+          <p className="text-[12px] text-muted-foreground">No debit orders yet. Tap + to add one.</p>
+        )}
+
+        <div className="space-y-2">
+          {list
+            .sort((a, b) => a.daysUntil - b.daysUntil)
+            .map((o) => (
+              <div key={o.id} className={`glass rounded-2xl p-3 flex items-center gap-3 ${o.notifyNow ? "ring-1 ring-warning/60" : ""}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${o.isPaidThisMonth ? "bg-success/15" : o.notifyNow ? "bg-warning/15" : "bg-primary/15"}`}>
+                  {o.isPaidThisMonth
+                    ? <Check className="w-4 h-4 text-success" />
+                    : <Bell className={`w-4 h-4 ${o.notifyNow ? "text-warning" : "text-primary-glow"}`} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold text-foreground truncate">{o.payee}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {o.category} · Due {o.dueDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    {!o.isPaidThisMonth && ` · ${o.daysUntil <= 0 ? "today" : `in ${o.daysUntil}d`}`}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-mono-jb text-[13px] font-semibold text-foreground">
+                    {format(convert(o.amount, mainCurrency, displayCurrency), displayCurrency)}
+                  </p>
+                  <div className="flex items-center gap-1 mt-1">
+                    {o.isPaidThisMonth ? (
+                      <button onClick={() => undoPaid(o.id)} className="text-[10px] text-muted-foreground underline">Undo</button>
+                    ) : (
+                      <button onClick={() => markPaid(o.id)} className="px-2 py-0.5 rounded-md bg-success/15 text-success text-[10px] font-bold uppercase tracking-wider">
+                        Mark paid
+                      </button>
+                    )}
+                    <button onClick={() => remove(o.id)} aria-label="Delete" className="w-6 h-6 rounded-md bg-destructive/15 flex items-center justify-center">
+                      <Trash2 className="w-3 h-3 text-destructive" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
     </div>
