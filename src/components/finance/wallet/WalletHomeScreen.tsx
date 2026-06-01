@@ -55,6 +55,7 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
   const [actionFor, setActionFor] = useState<Transaction | null>(null);
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [showAllRecipients, setShowAllRecipients] = useState(false);
+  const [showAllHistory, setShowAllHistory] = useState(false);
   const [prices, setPrices] = useState<Record<string, number>>({});
 
   useEffect(() => { fetchCryptoPricesUSD().then(setPrices); }, []);
