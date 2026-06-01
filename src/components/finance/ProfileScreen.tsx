@@ -507,3 +507,64 @@ const LiveStats = () => {
     </div>
   );
 };
+
+const BackupPage = ({ onBack }: { onBack: () => void }) => {
+  const { transactions } = useTransactions();
+  const { symbolOf, mainCurrency } = useSettings();
+  const cashflowTxns = transactions.filter((t) => t.account !== "Wallet");
+  const symbol = symbolOf(mainCurrency);
+  const [msg, setMsg] = useState("");
+  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 1800); };
+
+  const opts: { Icon: typeof FileText; label: string; hint: string; onClick: () => void }[] = [
+    {
+      Icon: FileSpreadsheet,
+      label: "Export to Excel (.xlsx)",
+      hint: `${cashflowTxns.length} cashflow records · spreadsheet`,
+      onClick: () => { exportXLSX(cashflowTxns); flash("Excel backup downloaded."); },
+    },
+    {
+      Icon: FileText,
+      label: "Export to CSV",
+      hint: `${cashflowTxns.length} cashflow records · universal`,
+      onClick: () => { exportCSV(cashflowTxns); flash("CSV backup downloaded."); },
+    },
+    {
+      Icon: FileDown,
+      label: "Export to PDF",
+      hint: `${cashflowTxns.length} cashflow records · printable`,
+      onClick: () => { exportPDF(cashflowTxns, symbol); flash("PDF backup downloaded."); },
+    },
+  ];
+
+  return (
+    <div className="h-full flex flex-col animate-fade-up">
+      <Header title="Backup" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-44 px-5 space-y-3">
+        <div className="glass-strong rounded-2xl p-4">
+          <p className="font-syne text-[11px] font-bold uppercase tracking-wider text-foreground mb-1">Cashflow records</p>
+          <p className="text-[12px] text-muted-foreground">
+            Export every transaction in the CashFlow phase. Wallet transactions are excluded.
+          </p>
+        </div>
+        {opts.map(({ Icon, label, hint, onClick }) => (
+          <button
+            key={label}
+            onClick={onClick}
+            className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform text-left"
+          >
+            <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+              <Icon className="w-4 h-4 text-primary-glow" strokeWidth={2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-medium text-foreground truncate">{label}</p>
+              <p className="text-[11px] text-muted-foreground truncate">{hint}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+        ))}
+        {msg && <p className="text-[12px] text-success text-center pt-1">{msg}</p>}
+      </div>
+    </div>
+  );
+};
