@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export interface DebitOrder {
   id: string;
@@ -8,6 +9,7 @@ export interface DebitOrder {
   category: string;
   notifyDaysBefore: number;
   paidMonths: string[]; // ["2026-06", ...]
+  lastNotifiedMonth?: string;
 }
 
 const KEY = "lumens.debitOrders.v1";
@@ -34,12 +36,20 @@ export const nextDueDate = (dayOfMonth: number, now = new Date()) => {
   const dim = new Date(y, m + 1, 0).getDate();
   const day = Math.min(dayOfMonth, dim);
   let due = new Date(y, m, day);
-  if (due.getTime() < new Date(y, m, now.getDate()).getTime() - 86400000) {
+  // Treat today as still "this month's due" until end-of-day
+  const todayMidnight = new Date(y, m, now.getDate()).getTime();
+  if (due.getTime() < todayMidnight) {
     const nm = new Date(y, m + 1, 1);
     const nDim = new Date(nm.getFullYear(), nm.getMonth() + 1, 0).getDate();
     due = new Date(nm.getFullYear(), nm.getMonth(), Math.min(dayOfMonth, nDim));
   }
   return due;
+};
+
+export const daysUntilDue = (dayOfMonth: number, now = new Date()) => {
+  const due = nextDueDate(dayOfMonth, now);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  return Math.ceil((due.getTime() - today) / 86400000);
 };
 
 export const useDebitOrders = () => {
@@ -65,10 +75,10 @@ export const useDebitOrders = () => {
 
   const enriched = useMemo(() => {
     const mk = monthKey();
-    const today = new Date();
     return list.map((o) => {
+      const today = new Date();
       const due = nextDueDate(o.dayOfMonth, today);
-      const daysUntil = Math.ceil((due.getTime() - today.setHours(0,0,0,0)) / 86400000);
+      const daysUntil = daysUntilDue(o.dayOfMonth, today);
       return {
         ...o,
         dueDate: due,
@@ -79,5 +89,46 @@ export const useDebitOrders = () => {
     });
   }, [list]);
 
-  return { list: enriched, add, remove, markPaid, undoPaid };
+  // Fire toast notifications on mount + every 5 minutes — one per order per month
+  useEffect(() => {
+    const fire = () => {
+      const mk = monthKey();
+      setList((curr) => {
+        let changed = false;
+        const next = curr.map((o) => {
+          const d = daysUntilDue(o.dayOfMonth);
+          const should = d <= o.notifyDaysBefore && d >= 0 && !o.paidMonths.includes(mk) && o.lastNotifiedMonth !== mk;
+          if (should) {
+            toast.warning(`${o.payee} debit order due`, {
+              description: d === 0 ? "Due today" : `Due in ${d} day${d === 1 ? "" : "s"} · amount ${o.amount.toFixed(2)}`,
+            });
+            changed = true;
+            return { ...o, lastNotifiedMonth: mk };
+          }
+          return o;
+        });
+        return changed ? next : curr;
+      });
+    };
+    fire();
+    const id = setInterval(fire, 5 * 60 * 1000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Test trigger: simulate "today is N days before the due date" for one order
+  const testFire = useCallback((id: string) => {
+    setList((curr) => {
+      const o = curr.find((x) => x.id === id);
+      if (!o) return curr;
+      const d = o.notifyDaysBefore;
+      toast.warning(`TEST · ${o.payee} debit order`, {
+        description: `Simulated alert · would fire ${d} day${d === 1 ? "" : "s"} before due · amount ${o.amount.toFixed(2)}`,
+      });
+      // Also clear lastNotifiedMonth so real notification can still fire later
+      return curr;
+    });
+  }, []);
+
+  return { list: enriched, add, remove, markPaid, undoPaid, testFire };
 };
