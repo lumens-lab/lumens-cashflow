@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { X, Trash2, ScanLine } from "lucide-react";
 import { Transaction, useTransactions } from "./TransactionsContext";
 import { useSettings } from "./SettingsContext";
 import { ReceiptScanner, ParsedReceipt } from "./ReceiptScanner";
+
 
 export const AddTransactionModal = ({
   onClose,
@@ -13,9 +14,29 @@ export const AddTransactionModal = ({
   initial?: Transaction;
   prefill?: ParsedReceipt;
 }) => {
-  const { addTransaction, updateTransaction, deleteTransaction, categoriesFor, addCustomCategory } = useTransactions();
+  const { transactions, addTransaction, updateTransaction, deleteTransaction, categoriesFor, addCustomCategory } = useTransactions();
   const { accounts, mainCurrency, symbolOf } = useSettings();
   const accountNames = accounts.map((a) => a.name);
+
+  // ---- Auto-suggest indexes from existing history ----
+  const { vendorIndex, vendorNames } = useMemo(() => {
+    const idx = new Map<string, { count: number; category: Record<string, number>; note: Record<string, number>; account: Record<string, number>; type: Record<string, number> }>();
+    transactions.forEach((t) => {
+      const key = t.vendor.trim().toLowerCase();
+      if (!key) return;
+      const e = idx.get(key) ?? { count: 0, category: {}, note: {}, account: {}, type: {} };
+      e.count++;
+      if (t.category) e.category[t.category] = (e.category[t.category] || 0) + 1;
+      if (t.name && t.name !== t.vendor) e.note[t.name] = (e.note[t.name] || 0) + 1;
+      if (t.account) e.account[t.account] = (e.account[t.account] || 0) + 1;
+      if (t.type) e.type[t.type] = (e.type[t.type] || 0) + 1;
+      idx.set(key, e);
+    });
+    const names = Array.from(new Set(transactions.map((t) => t.vendor).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+    return { vendorIndex: idx, vendorNames: names };
+  }, [transactions]);
+  const top = (m: Record<string, number>) => Object.entries(m).sort((a, b) => b[1] - a[1])[0]?.[0];
+
   const editing = !!initial;
   const [type, setType] = useState<"in" | "out">(initial?.type ?? "out");
   const [amount, setAmount] = useState(initial ? String(initial.amount) : prefill?.amount ? String(prefill.amount) : "");
@@ -158,13 +179,40 @@ export const AddTransactionModal = ({
         <Field label="Vendor">
           <input
             required
+            list="vendor-suggest"
             maxLength={60}
             value={vendor}
-            onChange={(e) => setVendor(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              setVendor(v);
+              // Auto-fill category/account/note from history when a known vendor is selected
+              const key = v.trim().toLowerCase();
+              const e2 = vendorIndex.get(key);
+              if (e2) {
+                const guessType = top(e2.type) as "in" | "out" | undefined;
+                if (guessType && guessType !== type) {
+                  setType(guessType);
+                  const next = categoriesFor(guessType);
+                  const c = top(e2.category);
+                  setCategory(c && next.includes(c) ? c : next[0]);
+                } else {
+                  const c = top(e2.category);
+                  if (c && cats.includes(c)) setCategory(c);
+                }
+                const a = top(e2.account);
+                if (a && accountNames.includes(a)) setAccount(a);
+                const n = top(e2.note);
+                if (n && !note) setNote(n);
+              }
+            }}
             placeholder="e.g. Whole Foods"
             className="w-full bg-transparent outline-none text-[14px] text-foreground placeholder:text-muted-foreground"
           />
+          <datalist id="vendor-suggest">
+            {vendorNames.map((v) => <option key={v} value={v} />)}
+          </datalist>
         </Field>
+
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Category">
@@ -196,8 +244,16 @@ export const AddTransactionModal = ({
         </Field>
 
         <Field label="Note (optional)">
-          <input maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note" className="w-full bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground" />
+          <input list="note-suggest" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note" className="w-full bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground" />
+          <datalist id="note-suggest">
+            {(() => {
+              const e2 = vendorIndex.get(vendor.trim().toLowerCase());
+              const opts = e2 ? Object.keys(e2.note) : Array.from(new Set(transactions.map((t) => t.name).filter((n) => n && transactions.find((tt) => tt.vendor === n) == null))).slice(0, 20);
+              return opts.map((o) => <option key={o} value={o} />);
+            })()}
+          </datalist>
         </Field>
+
 
         <button
           type="submit"

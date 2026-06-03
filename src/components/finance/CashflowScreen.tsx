@@ -418,7 +418,8 @@ const BudgetBlock = () => {
 };
 
 const DebitOrdersBlock = () => {
-  const { list, add, remove, markPaid, undoPaid } = useDebitOrders();
+  const { list, add, remove, markPaid, undoPaid, testFire } = useDebitOrders();
+
   const { mainCurrency, displayCurrency, convert, format, symbolOf } = useSettings();
   const [adding, setAdding] = useState(false);
   const [payee, setPayee] = useState("");
@@ -534,10 +535,18 @@ const DebitOrdersBlock = () => {
                         Mark paid
                       </button>
                     )}
+                    <button
+                      onClick={() => testFire(o.id)}
+                      className="px-2 py-0.5 rounded-md bg-primary/15 text-primary-glow text-[10px] font-bold uppercase tracking-wider"
+                      title={`Simulate the ${o.notifyDaysBefore}-day pre-due alert`}
+                    >
+                      Test
+                    </button>
                     <button onClick={() => remove(o.id)} aria-label="Delete" className="w-6 h-6 rounded-md bg-destructive/15 flex items-center justify-center">
                       <Trash2 className="w-3 h-3 text-destructive" />
                     </button>
                   </div>
+
                 </div>
               </div>
             ))}

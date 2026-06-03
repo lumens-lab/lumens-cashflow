@@ -1,4 +1,4 @@
-import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, Wallet, X } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, Send, ScanLine, Repeat, Bell, ShoppingBag, Coffee, Briefcase, Zap, Tag, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTransactions, Transaction } from "./TransactionsContext";
 import { useAuth } from "./AuthContext";
 import { useSettings } from "./SettingsContext";
@@ -6,7 +6,7 @@ import { PhaseToggle } from "./PhaseToggle";
 import { useMemo, useState } from "react";
 import { AddTransactionModal } from "./AddTransactionModal";
 import { ReceiptScanner, ParsedReceipt } from "./ReceiptScanner";
-import lumensLogoWhite from "@/assets/lumens-logo-white.png";
+
 
 const iconFor = (cat: string) => {
   switch (cat) {
@@ -52,23 +52,31 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
 
   const cashflowTxns = useMemo(() => transactions.filter((t) => t.account !== "Wallet"), [transactions]);
 
+  const [viewMonth, setViewMonth] = useState<Date>(() => {
+    const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1);
+  });
+  const monthLabel = viewMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const isThisMonth = useMemo(() => {
+    const n = new Date(); return n.getFullYear() === viewMonth.getFullYear() && n.getMonth() === viewMonth.getMonth();
+  }, [viewMonth]);
+
   const { income, expense, balance, monthTxns } = useMemo(() => {
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    const ms = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1).toISOString().slice(0, 10);
+    const me = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1).toISOString().slice(0, 10);
     let inc = 0, exp = 0;
     cashflowTxns.forEach((t) => {
-      if (t.date >= monthStart) {
+      if (t.date >= ms && t.date < me) {
         if (t.type === "in") inc += t.amount;
         else exp += t.amount;
       }
     });
     const totalBalance = cashflowTxns.reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
-    const monthTxns = [...cashflowTxns].filter((t) => t.date >= monthStart).sort((a, b) => b.date.localeCompare(a.date));
+    const monthTxns = cashflowTxns.filter((t) => t.date >= ms && t.date < me).sort((a, b) => b.date.localeCompare(a.date));
     return { income: inc, expense: exp, balance: totalBalance, monthTxns };
-  }, [cashflowTxns]);
+  }, [cashflowTxns, viewMonth]);
   const [seeAll, setSeeAll] = useState(false);
   const recent = monthTxns;
-  const allSorted = useMemo(() => [...cashflowTxns].sort((a, b) => b.date.localeCompare(a.date)), [cashflowTxns]);
+
 
   // amounts are stored in mainCurrency; convert to displayCurrency for UI
   const dispBalance = convert(balance, mainCurrency, displayCurrency);
@@ -78,31 +86,24 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
-        <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <img
-            src={lumensLogoWhite}
-            alt="Lumens"
-            className="h-10 w-auto object-contain"
-            style={{ filter: "drop-shadow(0 1px 2px hsl(213 100% 60% / 0.3))" }}
-          />
-          <div className="flex flex-col items-end gap-1.5">
-            <PhaseToggle />
-            <button
-              onClick={onProfile}
-              className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
-              aria-label="Open profile"
-            >
-              {avatar
-                ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
-            </button>
-          </div>
+        <div className="flex items-start justify-between px-5 pt-3 pb-2">
+          <button
+            onClick={onProfile}
+            className="w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform"
+            aria-label="Open profile"
+          >
+            {avatar
+              ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+              : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold text-lg">{initial}</div>}
+          </button>
+          <PhaseToggle />
         </div>
 
-        <div className="px-5 pt-2 pb-4">
+        <div className="px-5 pt-3 pb-4">
           <p className="text-xs text-muted-foreground">Good morning</p>
           <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">{displayName}</h1>
         </div>
+
 
         {showReminder && (
           <div className="px-5 mb-3">
@@ -212,15 +213,45 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
 
         {/* Recent transactions (this month) */}
         <div className="px-5 mt-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Activity · This Month</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Activity</h3>
             <button onClick={() => setSeeAll(true)} className="text-[11px] text-primary-glow font-medium">See all</button>
+          </div>
+
+          {/* Month picker */}
+          <div className="glass rounded-xl p-1 flex items-center justify-between mb-3">
+            <button
+              onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+              className="w-8 h-8 rounded-lg flex items-center justify-center active:scale-95 transition-transform"
+              aria-label="Previous month"
+            >
+              <ChevronLeft className="w-4 h-4 text-foreground" />
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="font-syne text-[12px] font-bold text-foreground">{monthLabel}</span>
+              {!isThisMonth && (
+                <button
+                  onClick={() => { const n = new Date(); setViewMonth(new Date(n.getFullYear(), n.getMonth(), 1)); }}
+                  className="text-[10px] text-primary-glow font-medium underline"
+                >
+                  Today
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+              disabled={isThisMonth}
+              className="w-8 h-8 rounded-lg flex items-center justify-center active:scale-95 transition-transform disabled:opacity-30"
+              aria-label="Next month"
+            >
+              <ChevronRight className="w-4 h-4 text-foreground" />
+            </button>
           </div>
 
           <div className="space-y-2">
             {recent.length === 0 && (
               <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">
-                No transactions this month. Tap + to add one.
+                No transactions in {monthLabel}.
               </div>
             )}
             {recent.map((tx) => {
@@ -256,12 +287,13 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
 
       {seeAll && (
         <AllActivitySheet
-          title="All Activity"
-          txns={allSorted}
+          title={`Activity · ${monthLabel}`}
+          txns={recent}
           onClose={() => setSeeAll(false)}
           onSelect={(t) => { setSeeAll(false); setActionFor(t); }}
         />
       )}
+
 
       {adding && <AddTransactionModal onClose={() => { setAdding(false); setScanPrefill(null); }} prefill={scanPrefill ?? undefined} />}
       {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}

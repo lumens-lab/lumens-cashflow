@@ -13,7 +13,7 @@ import { SwapScreen } from "./SwapScreen";
 import { AddRecipientSheet } from "./AddRecipientSheet";
 import { CryptoIcon } from "./CryptoIcon";
 import { CRYPTOS, fetchCryptoPricesUSD } from "@/lib/cryptoRates";
-import lumensLogoNavy from "@/assets/lumens-logo-navy.png";
+
 
 const iconFor = (cat: string) => {
   switch (cat) {
@@ -91,27 +91,20 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <div className="flex-1 overflow-y-auto no-scrollbar pb-40">
-        <div className="flex items-center justify-between px-5 pt-3 pb-2">
-          <img
-            src={lumensLogoNavy}
-            alt="Lumens"
-            className="h-10 w-auto object-contain rounded-md"
-            style={{ filter: "drop-shadow(0 0 10px hsl(213 100% 60% / 0.5))" }}
-          />
-          <div className="flex flex-col items-end gap-1.5">
-            <PhaseToggle />
-            <button onClick={onProfile} className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform" aria-label="Open profile">
-              {avatar
-                ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold">{initial}</div>}
-            </button>
-          </div>
+        <div className="flex items-start justify-between px-5 pt-3 pb-2">
+          <button onClick={onProfile} className="w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-primary/40 active:scale-95 transition-transform" aria-label="Open profile">
+            {avatar
+              ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
+              : <div className="w-full h-full bg-muted flex items-center justify-center text-foreground font-bold text-lg">{initial}</div>}
+          </button>
+          <PhaseToggle />
         </div>
 
-        <div className="px-5 pt-2 pb-4">
+        <div className="px-5 pt-3 pb-4">
           <p className="text-xs text-muted-foreground">Good morning</p>
           <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">{displayName}</h1>
         </div>
+
 
         {/* Balance Hero */}
         <div className="px-5">

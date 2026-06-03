@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PhoneFrame } from "@/components/finance/PhoneFrame";
 import { StatusBar } from "@/components/finance/StatusBar";
 import { BottomNav, type Tab } from "@/components/finance/BottomNav";
@@ -9,7 +9,7 @@ import { CashflowScreen } from "@/components/finance/CashflowScreen";
 import { RecordsScreen } from "@/components/finance/RecordsScreen";
 import { ProfileScreen } from "@/components/finance/ProfileScreen";
 import { TransactionsProvider } from "@/components/finance/TransactionsContext";
-import { ThemeProvider, useTheme } from "@/components/finance/ThemeContext";
+import { ThemeProvider } from "@/components/finance/ThemeContext";
 import { SettingsProvider } from "@/components/finance/SettingsContext";
 import { AuthProvider, useAuth } from "@/components/finance/AuthContext";
 import { AuthScreen } from "@/components/finance/AuthScreen";
@@ -21,16 +21,11 @@ import { PinSheet } from "@/components/finance/PinSheet";
 const AppShell = () => {
   const { user, loading } = useAuth();
   const { phase, setPhase, walletPinRequired } = usePhase();
-  const { setMode } = useTheme();
   const [tab, setTab] = useState<Tab>("home");
   const [payOpen, setPayOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState<"main" | "notifications">("main");
   const [pendingWalletEntry, setPendingWalletEntry] = useState(false);
 
-  useEffect(() => {
-    setMode(phase === "wallet" ? "dark" : "light");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
 
   const enterWallet = () => {
     if (walletPinRequired && phase !== "wallet") {
@@ -59,13 +54,14 @@ const AppShell = () => {
         <AuthScreen />
       ) : (
         <>
-          <div className="absolute inset-0 pt-[44px]">
+          <div className="h-[100dvh] flex flex-col">
             {tab === "home" && (phase === "wallet"
               ? <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />
               : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} onEnterWallet={enterWallet} />)}
             {tab === "cashflow" && <CashflowScreen />}
             {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
           </div>
+
           {payOpen && <PayScreen onClose={() => setPayOpen(false)} />}
           <BottomNav active={tab} onChange={handleNav} />
           {pendingWalletEntry && (
