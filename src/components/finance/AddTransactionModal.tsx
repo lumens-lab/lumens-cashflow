@@ -244,8 +244,16 @@ export const AddTransactionModal = ({
         </Field>
 
         <Field label="Note (optional)">
-          <input maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note" className="w-full bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground" />
+          <input list="note-suggest" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note" className="w-full bg-transparent outline-none text-[13px] text-foreground placeholder:text-muted-foreground" />
+          <datalist id="note-suggest">
+            {(() => {
+              const e2 = vendorIndex.get(vendor.trim().toLowerCase());
+              const opts = e2 ? Object.keys(e2.note) : Array.from(new Set(transactions.map((t) => t.name).filter((n) => n && transactions.find((tt) => tt.vendor === n) == null))).slice(0, 20);
+              return opts.map((o) => <option key={o} value={o} />);
+            })()}
+          </datalist>
         </Field>
+
 
         <button
           type="submit"
