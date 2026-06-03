@@ -54,7 +54,7 @@ const AppShell = () => {
         <AuthScreen />
       ) : (
         <>
-          <div className="relative min-h-[100dvh]">
+          <div className="h-[100dvh] flex flex-col">
             {tab === "home" && (phase === "wallet"
               ? <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />
               : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} onEnterWallet={enterWallet} />)}
