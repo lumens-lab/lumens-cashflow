@@ -21,16 +21,11 @@ import { PinSheet } from "@/components/finance/PinSheet";
 const AppShell = () => {
   const { user, loading } = useAuth();
   const { phase, setPhase, walletPinRequired } = usePhase();
-  const { setMode } = useTheme();
   const [tab, setTab] = useState<Tab>("home");
   const [payOpen, setPayOpen] = useState(false);
   const [profileInitial, setProfileInitial] = useState<"main" | "notifications">("main");
   const [pendingWalletEntry, setPendingWalletEntry] = useState(false);
 
-  useEffect(() => {
-    setMode(phase === "wallet" ? "dark" : "light");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
 
   const enterWallet = () => {
     if (walletPinRequired && phase !== "wallet") {
