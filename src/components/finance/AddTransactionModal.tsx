@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { X, Trash2, ScanLine } from "lucide-react";
 import { Transaction, useTransactions } from "./TransactionsContext";
 import { useSettings } from "./SettingsContext";
 import { ReceiptScanner, ParsedReceipt } from "./ReceiptScanner";
+
 
 export const AddTransactionModal = ({
   onClose,
