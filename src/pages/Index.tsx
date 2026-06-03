@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PhoneFrame } from "@/components/finance/PhoneFrame";
 import { StatusBar } from "@/components/finance/StatusBar";
 import { BottomNav, type Tab } from "@/components/finance/BottomNav";
@@ -9,7 +9,7 @@ import { CashflowScreen } from "@/components/finance/CashflowScreen";
 import { RecordsScreen } from "@/components/finance/RecordsScreen";
 import { ProfileScreen } from "@/components/finance/ProfileScreen";
 import { TransactionsProvider } from "@/components/finance/TransactionsContext";
-import { ThemeProvider, useTheme } from "@/components/finance/ThemeContext";
+import { ThemeProvider } from "@/components/finance/ThemeContext";
 import { SettingsProvider } from "@/components/finance/SettingsContext";
 import { AuthProvider, useAuth } from "@/components/finance/AuthContext";
 import { AuthScreen } from "@/components/finance/AuthScreen";
