@@ -213,15 +213,45 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
 
         {/* Recent transactions (this month) */}
         <div className="px-5 mt-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Activity · This Month</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Recent Activity</h3>
             <button onClick={() => setSeeAll(true)} className="text-[11px] text-primary-glow font-medium">See all</button>
+          </div>
+
+          {/* Month picker */}
+          <div className="glass rounded-xl p-1 flex items-center justify-between mb-3">
+            <button
+              onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+              className="w-8 h-8 rounded-lg flex items-center justify-center active:scale-95 transition-transform"
+              aria-label="Previous month"
+            >
+              <ChevronLeft className="w-4 h-4 text-foreground" />
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="font-syne text-[12px] font-bold text-foreground">{monthLabel}</span>
+              {!isThisMonth && (
+                <button
+                  onClick={() => { const n = new Date(); setViewMonth(new Date(n.getFullYear(), n.getMonth(), 1)); }}
+                  className="text-[10px] text-primary-glow font-medium underline"
+                >
+                  Today
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+              disabled={isThisMonth}
+              className="w-8 h-8 rounded-lg flex items-center justify-center active:scale-95 transition-transform disabled:opacity-30"
+              aria-label="Next month"
+            >
+              <ChevronRight className="w-4 h-4 text-foreground" />
+            </button>
           </div>
 
           <div className="space-y-2">
             {recent.length === 0 && (
               <div className="glass rounded-2xl p-6 text-center text-[12px] text-muted-foreground">
-                No transactions this month. Tap + to add one.
+                No transactions in {monthLabel}.
               </div>
             )}
             {recent.map((tx) => {
@@ -257,12 +287,13 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
 
       {seeAll && (
         <AllActivitySheet
-          title="All Activity"
-          txns={allSorted}
+          title={`Activity · ${monthLabel}`}
+          txns={recent}
           onClose={() => setSeeAll(false)}
           onSelect={(t) => { setSeeAll(false); setActionFor(t); }}
         />
       )}
+
 
       {adding && <AddTransactionModal onClose={() => { setAdding(false); setScanPrefill(null); }} prefill={scanPrefill ?? undefined} />}
       {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
