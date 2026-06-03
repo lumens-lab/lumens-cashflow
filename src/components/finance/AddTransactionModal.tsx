@@ -179,13 +179,40 @@ export const AddTransactionModal = ({
         <Field label="Vendor">
           <input
             required
+            list="vendor-suggest"
             maxLength={60}
             value={vendor}
-            onChange={(e) => setVendor(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              setVendor(v);
+              // Auto-fill category/account/note from history when a known vendor is selected
+              const key = v.trim().toLowerCase();
+              const e2 = vendorIndex.get(key);
+              if (e2) {
+                const guessType = top(e2.type) as "in" | "out" | undefined;
+                if (guessType && guessType !== type) {
+                  setType(guessType);
+                  const next = categoriesFor(guessType);
+                  const c = top(e2.category);
+                  setCategory(c && next.includes(c) ? c : next[0]);
+                } else {
+                  const c = top(e2.category);
+                  if (c && cats.includes(c)) setCategory(c);
+                }
+                const a = top(e2.account);
+                if (a && accountNames.includes(a)) setAccount(a);
+                const n = top(e2.note);
+                if (n && !note) setNote(n);
+              }
+            }}
             placeholder="e.g. Whole Foods"
             className="w-full bg-transparent outline-none text-[14px] text-foreground placeholder:text-muted-foreground"
           />
+          <datalist id="vendor-suggest">
+            {vendorNames.map((v) => <option key={v} value={v} />)}
+          </datalist>
         </Field>
+
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Category">
