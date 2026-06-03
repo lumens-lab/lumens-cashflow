@@ -54,13 +54,14 @@ const AppShell = () => {
         <AuthScreen />
       ) : (
         <>
-          <div className="absolute inset-0 pt-[44px]">
+          <div className="relative min-h-[100dvh]">
             {tab === "home" && (phase === "wallet"
               ? <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />
               : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} onEnterWallet={enterWallet} />)}
             {tab === "cashflow" && <CashflowScreen />}
             {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
           </div>
+
           {payOpen && <PayScreen onClose={() => setPayOpen(false)} />}
           <BottomNav active={tab} onChange={handleNav} />
           {pendingWalletEntry && (
