@@ -1,17 +1,15 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, ReactNode } from "react";
 
-type Mode = "light" | "dark";
+type Mode = "dark";
 const ThemeCtx = createContext<{ mode: Mode; setMode: (m: Mode) => void } | null>(null);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [mode, setMode] = useState<Mode>(() => (localStorage.getItem("lumens-theme") as Mode) || "light");
-
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", mode === "dark");
-    localStorage.setItem("lumens-theme", mode);
-  }, [mode]);
-
-  return <ThemeCtx.Provider value={{ mode, setMode }}>{children}</ThemeCtx.Provider>;
+    document.documentElement.classList.add("dark");
+    document.documentElement.style.colorScheme = "dark";
+    try { localStorage.setItem("lumens-theme", "dark"); } catch { /* ignore */ }
+  }, []);
+  return <ThemeCtx.Provider value={{ mode: "dark", setMode: () => {} }}>{children}</ThemeCtx.Provider>;
 };
 
 export const useTheme = () => {
