@@ -485,12 +485,40 @@ const LiveStats = () => {
 };
 
 const BackupPage = ({ onBack }: { onBack: () => void }) => {
-  const { transactions } = useTransactions();
+  const { transactions, addTransaction } = useTransactions();
   const { symbolOf, mainCurrency } = useSettings();
   const cashflowTxns = transactions.filter((t) => t.account !== "Wallet");
   const symbol = symbolOf(mainCurrency);
   const [msg, setMsg] = useState("");
+  const [preview, setPreview] = useState<ImportRow[] | null>(null);
+  const [importing, setImporting] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 1800); };
+
+  const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    try {
+      const rows = await importFromFile(f);
+      if (!rows.length) { toast.error("No transactions found in file"); return; }
+      setPreview(rows);
+    } catch (err: any) {
+      toast.error(err?.message || "Import failed");
+    }
+  };
+
+  const confirmImport = async () => {
+    if (!preview) return;
+    setImporting(true);
+    let ok = 0;
+    for (const r of preview) {
+      try { await addTransaction(r); ok++; } catch { /* skip */ }
+    }
+    setImporting(false);
+    setPreview(null);
+    toast.success(`Imported ${ok} record${ok === 1 ? "" : "s"}`);
+  };
 
   const opts: { Icon: typeof FileText; label: string; hint: string; onClick: () => void }[] = [
     {
@@ -523,6 +551,8 @@ const BackupPage = ({ onBack }: { onBack: () => void }) => {
             Export every transaction in the CashFlow phase. Wallet transactions are excluded.
           </p>
         </div>
+
+        <p className="font-syne text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground px-1 pt-2">Export</p>
         {opts.map(({ Icon, label, hint, onClick }) => (
           <button
             key={label}
@@ -539,8 +569,55 @@ const BackupPage = ({ onBack }: { onBack: () => void }) => {
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
         ))}
+
+        <p className="font-syne text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground px-1 pt-3">Import / Restore</p>
+        <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,.pdf" onChange={onPick} className="hidden" />
+        <button
+          onClick={() => fileRef.current?.click()}
+          className="w-full glass rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform text-left"
+        >
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+            <Upload className="w-4 h-4 text-primary-glow" strokeWidth={2} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-medium text-foreground truncate">Restore from file</p>
+            <p className="text-[11px] text-muted-foreground truncate">Accepts .csv and .xlsx (PDF coming soon)</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </button>
+
+        {preview && (
+          <div className="glass-strong rounded-2xl p-4 space-y-3">
+            <p className="font-syne text-[11px] font-bold uppercase tracking-wider text-foreground">
+              Ready to import {preview.length} record{preview.length === 1 ? "" : "s"}
+            </p>
+            <div className="max-h-44 overflow-y-auto no-scrollbar space-y-1 text-[11px]">
+              {preview.slice(0, 8).map((r, i) => (
+                <div key={i} className="flex justify-between gap-2 text-muted-foreground">
+                  <span className="truncate">{r.date} · {r.vendor} · {r.category}</span>
+                  <span className={`font-mono-jb ${r.type === "in" ? "text-success" : "text-foreground"}`}>
+                    {r.type === "in" ? "+" : "−"}{symbol}{r.amount.toFixed(2)}
+                  </span>
+                </div>
+              ))}
+              {preview.length > 8 && <p className="text-muted-foreground">…and {preview.length - 8} more</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setPreview(null)} className="py-2.5 rounded-xl glass text-[12px] font-bold text-foreground">Cancel</button>
+              <button
+                onClick={confirmImport}
+                disabled={importing}
+                className="py-2.5 rounded-xl gradient-primary-bg text-primary-foreground font-syne font-bold text-[11px] uppercase tracking-wider disabled:opacity-50"
+              >
+                {importing ? "Importing…" : "Confirm import"}
+              </button>
+            </div>
+          </div>
+        )}
+
         {msg && <p className="text-[12px] text-success text-center pt-1">{msg}</p>}
       </div>
     </div>
   );
 };
+
