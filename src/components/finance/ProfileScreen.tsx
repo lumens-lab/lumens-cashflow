@@ -149,19 +149,34 @@ const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
 };
 
 const AppearancePage = ({ onBack }: { onBack: () => void }) => {
+  const { mode, setMode } = useTheme();
+  const options: { id: "light" | "dark"; Icon: typeof Sun; label: string; hint: string }[] = [
+    { id: "light", Icon: Sun, label: "Light mode", hint: "Bright, airy — like the classic Expenses experience" },
+    { id: "dark", Icon: Moon, label: "Dark mode", hint: "Glassmorphic dark — premium low-light feel" },
+  ];
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Appearance" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
-        <div className="glass-strong rounded-2xl p-4">
-          <h3 className="font-syne text-[12px] font-bold uppercase tracking-wider text-foreground mb-3">Theme</h3>
-          <div className="glass rounded-xl p-4 flex items-center gap-3">
-            <Moon className="w-6 h-6 text-primary-glow" />
-            <div className="flex-1">
-              <p className="text-[13px] font-semibold text-foreground">Dark mode</p>
-              <p className="text-[11px] text-muted-foreground">Lumens uses a single dark theme across every phase for a premium, glassmorphic look.</p>
-            </div>
-          </div>
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-44 px-5 space-y-3">
+        <div className="glass-strong rounded-2xl p-4 space-y-2">
+          <h3 className="font-syne text-[12px] font-bold uppercase tracking-wider text-foreground mb-1">Theme</h3>
+          {options.map(({ id, Icon, label, hint }) => {
+            const active = mode === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setMode(id)}
+                className={`w-full glass rounded-xl p-4 flex items-center gap-3 active:scale-[0.99] transition-transform text-left ${active ? "ring-2 ring-primary/60" : ""}`}
+              >
+                <Icon className="w-5 h-5 text-primary-glow" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold text-foreground">{label}</p>
+                  <p className="text-[11px] text-muted-foreground">{hint}</p>
+                </div>
+                {active && <Check className="w-4 h-4 text-primary-glow" />}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
