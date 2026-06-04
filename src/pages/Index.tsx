@@ -81,18 +81,20 @@ const Index = () => (
   <ThemeProvider>
     <AuthProvider>
       <SettingsProvider>
-        <TransactionsProvider>
-          <RecipientsProvider>
-            <CardsProvider>
-              <PhaseProvider>
-                <main>
-                  <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
-                  <AppShell />
-                </main>
-              </PhaseProvider>
-            </CardsProvider>
-          </RecipientsProvider>
-        </TransactionsProvider>
+        <CategoriesProvider>
+          <TransactionsProvider>
+            <RecipientsProvider>
+              <CardsProvider>
+                <PhaseProvider>
+                  <main>
+                    <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+                    <AppShell />
+                  </main>
+                </PhaseProvider>
+              </CardsProvider>
+            </RecipientsProvider>
+          </TransactionsProvider>
+        </CategoriesProvider>
       </SettingsProvider>
     </AuthProvider>
   </ThemeProvider>
