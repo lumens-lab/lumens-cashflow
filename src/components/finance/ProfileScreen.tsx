@@ -448,7 +448,7 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
     <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5">
       <Section title="Settings">
         <Row Icon={Bell} label="Notifications" hint="Transactions, alerts, news" onClick={() => setPage("notifications")} />
-        <Row Icon={Moon} label="Appearance" hint="Default mode follows phase" onClick={() => setPage("appearance")} />
+        <Row Icon={Sun} label="Appearance" hint="Light or dark mode" onClick={() => setPage("appearance")} />
         <Row Icon={Languages} label="Language Setting" onClick={() => setPage("settings-language")} />
       </Section>
 
@@ -456,10 +456,10 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
         <Row Icon={Database} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
         <Row Icon={DollarSign} label="Main Currency Setting" hint="Set base currency" onClick={() => setPage("settings-currency")} />
         <Row Icon={BookOpen} label="Transaction Settings" hint="Monthly Start Date, Carry-over, Period" onClick={() => setPage("settings-transaction")} />
-        <Row Icon={PiggyBank} label="Income Category Setting" onClick={() => setPage("settings-income-cat")} />
-        <Row Icon={Database} label="Expenses Category Setting" onClick={() => setPage("settings-expense-cat")} />
-        <Row Icon={Wallet} label="Accounts Setting" hint="Account Group, Accounts, Include in totals" onClick={() => setPage("settings-accounts")} />
-        <Row Icon={CreditCard} label="Budget Setting" onClick={() => setPage("settings-budget")} />
+        <Row Icon={PiggyBank} label="Income Category Setting" hint="Add, edit, recolor income categories" onClick={() => setPage("settings-income-cat")} />
+        <Row Icon={Tag} label="Expenses Category Setting" hint="Add, edit, recolor expense categories" onClick={() => setPage("settings-expense-cat")} />
+        <Row Icon={Wallet} label="Accounts Setting" hint="Add, edit, remove accounts and details" onClick={() => setPage("settings-accounts")} />
+        <Row Icon={Target} label="Budget Setting" hint="Per-category monthly limits" onClick={() => setPage("settings-budget")} />
       </Section>
     </div>
   </div>
