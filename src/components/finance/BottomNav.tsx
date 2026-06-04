@@ -12,8 +12,11 @@ export const BottomNav = ({ active, onChange }: { active: Tab; onChange: (t: Tab
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center px-4 pt-2" style={{ paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 12px)" }}>
-      <div className="w-[64%] max-w-[320px] glass-strong rounded-[18px] flex items-end justify-between px-2 py-1">
+    <div
+      className="fixed bottom-0 left-0 right-0 z-50 flex justify-center px-4 pt-2"
+      style={{ paddingBottom: "calc(env(safe-area-inset-bottom,0px) + 14px)" }}
+    >
+      <div className="w-[64%] max-w-[320px] glass-strong rounded-[20px] flex items-end justify-between px-2 py-1.5">
         {items.map(({ id, label, Icon }) => {
           const isActive = active === id;
           const isCenter = id === "pay";
@@ -23,23 +26,23 @@ export const BottomNav = ({ active, onChange }: { active: Tab; onChange: (t: Tab
               <button
                 key={id}
                 onClick={() => onChange(id)}
-                className="-mt-5 flex flex-col items-center gap-0.5 group"
+                className="-mt-6 flex flex-col items-center gap-0.5 group"
                 aria-label={label}
               >
-                <div className="w-11 h-11 rounded-2xl gradient-primary-bg flex items-center justify-center shadow-[0_8px_24px_hsl(var(--primary)/0.5)] active:scale-95 transition-transform">
-                  <Icon className="w-[20px] h-[20px] text-primary-foreground" strokeWidth={2.5} />
+                <div className="w-12 h-12 rounded-2xl gradient-primary-bg flex items-center justify-center shadow-[0_8px_24px_hsl(var(--primary)/0.5)] active:scale-95 transition-transform">
+                  <Icon className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2.5} />
                 </div>
-                <span className="font-syne text-[7px] font-bold uppercase tracking-wider text-primary-glow">{label}</span>
+                <span className="font-syne text-[9px] font-bold uppercase tracking-wider text-primary-glow">{label}</span>
               </button>
             );
           }
 
           return (
             <button key={id} onClick={() => onChange(id)} className="flex flex-col items-center gap-0.5 px-1 py-0.5 group" aria-label={label}>
-              <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${isActive ? "bg-primary/20" : ""}`}>
-                <Icon className={`w-[12px] h-[12px] transition-colors ${isActive ? "text-primary-glow" : "text-muted-foreground"}`} strokeWidth={isActive ? 2.5 : 2} />
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${isActive ? "bg-primary/20" : ""}`}>
+                <Icon className={`w-[17px] h-[17px] transition-colors ${isActive ? "text-primary-glow" : "text-muted-foreground"}`} strokeWidth={isActive ? 2.5 : 2} />
               </div>
-              <span className={`font-syne text-[6.5px] font-bold uppercase tracking-wider transition-colors ${isActive ? "text-primary-glow" : "text-muted-foreground"}`}>
+              <span className={`font-syne text-[9px] font-bold uppercase tracking-wider transition-colors ${isActive ? "text-primary-glow" : "text-muted-foreground"}`}>
                 {label}
               </span>
             </button>

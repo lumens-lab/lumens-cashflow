@@ -16,6 +16,7 @@ import { AuthScreen } from "@/components/finance/AuthScreen";
 import { PhaseProvider, usePhase } from "@/components/finance/PhaseContext";
 import { RecipientsProvider } from "@/components/finance/RecipientsContext";
 import { CardsProvider } from "@/components/finance/CardsContext";
+import { CategoriesProvider } from "@/components/finance/CategoriesContext";
 import { PinSheet } from "@/components/finance/PinSheet";
 
 const AppShell = () => {
@@ -80,18 +81,20 @@ const Index = () => (
   <ThemeProvider>
     <AuthProvider>
       <SettingsProvider>
-        <TransactionsProvider>
-          <RecipientsProvider>
-            <CardsProvider>
-              <PhaseProvider>
-                <main>
-                  <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
-                  <AppShell />
-                </main>
-              </PhaseProvider>
-            </CardsProvider>
-          </RecipientsProvider>
-        </TransactionsProvider>
+        <CategoriesProvider>
+          <TransactionsProvider>
+            <RecipientsProvider>
+              <CardsProvider>
+                <PhaseProvider>
+                  <main>
+                    <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+                    <AppShell />
+                  </main>
+                </PhaseProvider>
+              </CardsProvider>
+            </RecipientsProvider>
+          </TransactionsProvider>
+        </CategoriesProvider>
       </SettingsProvider>
     </AuthProvider>
   </ThemeProvider>

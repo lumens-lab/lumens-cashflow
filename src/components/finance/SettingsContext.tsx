@@ -5,6 +5,7 @@ export interface Account {
   name: string;
   type: "Checking" | "Savings" | "Credit Card" | "Cash" | "Other";
   includeInTotals: boolean;
+  details?: string;
 }
 
 export interface Budget {

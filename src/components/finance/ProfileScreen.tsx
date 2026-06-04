@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, Lock, BookOpen, Database, Trash2, Check, Languages, Pencil, FileSpreadsheet, FileText, FileDown, Upload } from "lucide-react";
+import { Settings, Shield, CreditCard, HelpCircle, LogOut, ChevronRight, ChevronLeft, Bell, Moon, Sun, Eye, EyeOff, Plus, Wallet, DollarSign, PiggyBank, Lock, BookOpen, Database, Trash2, Check, Languages, Pencil, FileSpreadsheet, FileText, FileDown, Upload, Tag, Target } from "lucide-react";
 import { useTheme } from "./ThemeContext";
 import { CURRENCIES, useSettings } from "./SettingsContext";
 import { CATEGORIES, useTransactions } from "./TransactionsContext";
@@ -7,6 +7,7 @@ import { useAuth } from "./AuthContext";
 import { usePhase } from "./PhaseContext";
 import { ProfileEditSheet } from "./ProfileEditSheet";
 import { PaymentMethodsView, SecurityView } from "./SecurityAndCardsViews";
+import { CategoryEditor, AccountsEditor } from "./CategoryEditor";
 import { exportCSV, exportXLSX, exportPDF, importFromFile, ImportRow } from "@/lib/backup";
 import { toast } from "sonner";
 
@@ -148,19 +149,34 @@ const NotificationsPage = ({ onBack }: { onBack: () => void }) => {
 };
 
 const AppearancePage = ({ onBack }: { onBack: () => void }) => {
+  const { mode, setMode } = useTheme();
+  const options: { id: "light" | "dark"; Icon: typeof Sun; label: string; hint: string }[] = [
+    { id: "light", Icon: Sun, label: "Light mode", hint: "Bright, airy — like the classic Expenses experience" },
+    { id: "dark", Icon: Moon, label: "Dark mode", hint: "Glassmorphic dark — premium low-light feel" },
+  ];
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title="Appearance" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-3">
-        <div className="glass-strong rounded-2xl p-4">
-          <h3 className="font-syne text-[12px] font-bold uppercase tracking-wider text-foreground mb-3">Theme</h3>
-          <div className="glass rounded-xl p-4 flex items-center gap-3">
-            <Moon className="w-6 h-6 text-primary-glow" />
-            <div className="flex-1">
-              <p className="text-[13px] font-semibold text-foreground">Dark mode</p>
-              <p className="text-[11px] text-muted-foreground">Lumens uses a single dark theme across every phase for a premium, glassmorphic look.</p>
-            </div>
-          </div>
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-44 px-5 space-y-3">
+        <div className="glass-strong rounded-2xl p-4 space-y-2">
+          <h3 className="font-syne text-[12px] font-bold uppercase tracking-wider text-foreground mb-1">Theme</h3>
+          {options.map(({ id, Icon, label, hint }) => {
+            const active = mode === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setMode(id)}
+                className={`w-full glass rounded-xl p-4 flex items-center gap-3 active:scale-[0.99] transition-transform text-left ${active ? "ring-2 ring-primary/60" : ""}`}
+              >
+                <Icon className="w-5 h-5 text-primary-glow" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold text-foreground">{label}</p>
+                  <p className="text-[11px] text-muted-foreground">{hint}</p>
+                </div>
+                {active && <Check className="w-4 h-4 text-primary-glow" />}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -246,8 +262,10 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
   const back = () => setPage("settings");
   if (page === "settings") return <SettingsHub setPage={setPage} onBack={() => setPage("main")} />;
   if (page === "settings-currency") return <CurrencyPage onBack={back} kind="main" />;
-  if (page === "settings-budget") return <BudgetPage onBack={back} />;
-  if (page === "settings-accounts") return <AccountsPage onBack={back} />;
+  if (page === "settings-budget") return <CategoryEditor kind="budget" title="Budget Setting" onBack={back} withAmount />;
+  if (page === "settings-income-cat") return <CategoryEditor kind="income" title="Income Category Setting" onBack={back} />;
+  if (page === "settings-expense-cat") return <CategoryEditor kind="expense" title="Expenses Category Setting" onBack={back} />;
+  if (page === "settings-accounts") return <AccountsEditor onBack={back} />;
   if (page === "settings-backup") return <BackupPage onBack={back} />;
 
   const sub: Partial<Record<Page, { title: string; rows: { label: string; hint?: string; value?: string }[] }>> = {
@@ -256,15 +274,6 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
       { label: "Carry-over Setting", hint: "On" },
       { label: "Period", hint: "Monthly" },
       { label: "Default Type", hint: "Expense" },
-    ]},
-    "settings-income-cat": { title: "Income Category Setting", rows: [
-      { label: "Salary" }, { label: "Freelance" }, { label: "Investments" }, { label: "Refund" }, { label: "Gifts" }, { label: "+ Add new" },
-    ]},
-    "settings-expense-cat": { title: "Expenses Category Setting", rows: [
-      { label: "Groceries" }, { label: "Food & Drink" }, { label: "Transport" }, { label: "Utilities" }, { label: "Subscriptions" }, { label: "Health" }, { label: "+ Add new" },
-    ]},
-    "settings-backup": { title: "Backup", rows: [
-      { label: "Export data", hint: "CSV / JSON" }, { label: "Import data", hint: "From file" }, { label: "Complete reset", hint: "Erase all" },
     ]},
     "settings-passcode": { title: "Passcode", rows: [
       { label: "Enable passcode", hint: "Off" }, { label: "Change passcode" }, { label: "Auto-lock", hint: "1 minute" },
@@ -280,7 +289,7 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title={cur.title} onBack={back} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-2">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-44 px-5 space-y-2">
         {cur.rows.map((r, i) => (
           <div key={i} className="glass rounded-2xl p-3.5 flex items-center gap-3">
             <div className="flex-1 min-w-0">
@@ -439,7 +448,7 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
     <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5">
       <Section title="Settings">
         <Row Icon={Bell} label="Notifications" hint="Transactions, alerts, news" onClick={() => setPage("notifications")} />
-        <Row Icon={Moon} label="Appearance" hint="Default mode follows phase" onClick={() => setPage("appearance")} />
+        <Row Icon={Sun} label="Appearance" hint="Light or dark mode" onClick={() => setPage("appearance")} />
         <Row Icon={Languages} label="Language Setting" onClick={() => setPage("settings-language")} />
       </Section>
 
@@ -447,10 +456,10 @@ const SettingsHub = ({ setPage, onBack }: { setPage: (p: Page) => void; onBack: 
         <Row Icon={Database} label="Backup" hint="Export, Import, Complete reset" onClick={() => setPage("settings-backup")} />
         <Row Icon={DollarSign} label="Main Currency Setting" hint="Set base currency" onClick={() => setPage("settings-currency")} />
         <Row Icon={BookOpen} label="Transaction Settings" hint="Monthly Start Date, Carry-over, Period" onClick={() => setPage("settings-transaction")} />
-        <Row Icon={PiggyBank} label="Income Category Setting" onClick={() => setPage("settings-income-cat")} />
-        <Row Icon={Database} label="Expenses Category Setting" onClick={() => setPage("settings-expense-cat")} />
-        <Row Icon={Wallet} label="Accounts Setting" hint="Account Group, Accounts, Include in totals" onClick={() => setPage("settings-accounts")} />
-        <Row Icon={CreditCard} label="Budget Setting" onClick={() => setPage("settings-budget")} />
+        <Row Icon={PiggyBank} label="Income Category Setting" hint="Add, edit, recolor income categories" onClick={() => setPage("settings-income-cat")} />
+        <Row Icon={Tag} label="Expenses Category Setting" hint="Add, edit, recolor expense categories" onClick={() => setPage("settings-expense-cat")} />
+        <Row Icon={Wallet} label="Accounts Setting" hint="Add, edit, remove accounts and details" onClick={() => setPage("settings-accounts")} />
+        <Row Icon={Target} label="Budget Setting" hint="Per-category monthly limits" onClick={() => setPage("settings-budget")} />
       </Section>
     </div>
   </div>

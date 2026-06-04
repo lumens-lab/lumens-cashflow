@@ -1,15 +1,34 @@
-import { createContext, useContext, useEffect, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-type Mode = "dark";
-const ThemeCtx = createContext<{ mode: Mode; setMode: (m: Mode) => void } | null>(null);
+type Mode = "light" | "dark";
+const KEY = "lumens-theme";
+
+const ThemeCtx = createContext<{ mode: Mode; setMode: (m: Mode) => void; toggle: () => void } | null>(null);
+
+const loadMode = (): Mode => {
+  try {
+    const v = localStorage.getItem(KEY);
+    if (v === "light" || v === "dark") return v;
+  } catch { /* ignore */ }
+  return "light";
+};
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [mode, setModeState] = useState<Mode>(loadMode);
+
   useEffect(() => {
-    document.documentElement.classList.add("dark");
-    document.documentElement.style.colorScheme = "dark";
-    try { localStorage.setItem("lumens-theme", "dark"); } catch { /* ignore */ }
-  }, []);
-  return <ThemeCtx.Provider value={{ mode: "dark", setMode: () => {} }}>{children}</ThemeCtx.Provider>;
+    const root = document.documentElement;
+    if (mode === "dark") root.classList.add("dark");
+    else root.classList.remove("dark");
+    root.style.colorScheme = mode;
+    try { localStorage.setItem(KEY, mode); } catch { /* ignore */ }
+  }, [mode]);
+
+  return (
+    <ThemeCtx.Provider value={{ mode, setMode: setModeState, toggle: () => setModeState(mode === "dark" ? "light" : "dark") }}>
+      {children}
+    </ThemeCtx.Provider>
+  );
 };
 
 export const useTheme = () => {
