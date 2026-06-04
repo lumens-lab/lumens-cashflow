@@ -262,8 +262,10 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
   const back = () => setPage("settings");
   if (page === "settings") return <SettingsHub setPage={setPage} onBack={() => setPage("main")} />;
   if (page === "settings-currency") return <CurrencyPage onBack={back} kind="main" />;
-  if (page === "settings-budget") return <BudgetPage onBack={back} />;
-  if (page === "settings-accounts") return <AccountsPage onBack={back} />;
+  if (page === "settings-budget") return <CategoryEditor kind="budget" title="Budget Setting" onBack={back} withAmount />;
+  if (page === "settings-income-cat") return <CategoryEditor kind="income" title="Income Category Setting" onBack={back} />;
+  if (page === "settings-expense-cat") return <CategoryEditor kind="expense" title="Expenses Category Setting" onBack={back} />;
+  if (page === "settings-accounts") return <AccountsEditor onBack={back} />;
   if (page === "settings-backup") return <BackupPage onBack={back} />;
 
   const sub: Partial<Record<Page, { title: string; rows: { label: string; hint?: string; value?: string }[] }>> = {
@@ -272,15 +274,6 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
       { label: "Carry-over Setting", hint: "On" },
       { label: "Period", hint: "Monthly" },
       { label: "Default Type", hint: "Expense" },
-    ]},
-    "settings-income-cat": { title: "Income Category Setting", rows: [
-      { label: "Salary" }, { label: "Freelance" }, { label: "Investments" }, { label: "Refund" }, { label: "Gifts" }, { label: "+ Add new" },
-    ]},
-    "settings-expense-cat": { title: "Expenses Category Setting", rows: [
-      { label: "Groceries" }, { label: "Food & Drink" }, { label: "Transport" }, { label: "Utilities" }, { label: "Subscriptions" }, { label: "Health" }, { label: "+ Add new" },
-    ]},
-    "settings-backup": { title: "Backup", rows: [
-      { label: "Export data", hint: "CSV / JSON" }, { label: "Import data", hint: "From file" }, { label: "Complete reset", hint: "Erase all" },
     ]},
     "settings-passcode": { title: "Passcode", rows: [
       { label: "Enable passcode", hint: "Off" }, { label: "Change passcode" }, { label: "Auto-lock", hint: "1 minute" },
@@ -296,7 +289,7 @@ const SettingsRouter = ({ page, setPage }: { page: Page; setPage: (p: Page) => v
   return (
     <div className="h-full flex flex-col animate-fade-up">
       <Header title={cur.title} onBack={back} />
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-40 px-5 space-y-2">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-44 px-5 space-y-2">
         {cur.rows.map((r, i) => (
           <div key={i} className="glass rounded-2xl p-3.5 flex items-center gap-3">
             <div className="flex-1 min-w-0">
