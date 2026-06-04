@@ -16,6 +16,7 @@ import { AuthScreen } from "@/components/finance/AuthScreen";
 import { PhaseProvider, usePhase } from "@/components/finance/PhaseContext";
 import { RecipientsProvider } from "@/components/finance/RecipientsContext";
 import { CardsProvider } from "@/components/finance/CardsContext";
+import { CategoriesProvider } from "@/components/finance/CategoriesContext";
 import { PinSheet } from "@/components/finance/PinSheet";
 
 const AppShell = () => {
