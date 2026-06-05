@@ -12,7 +12,9 @@ import { WithdrawSheet } from "./WithdrawSheet";
 import { SwapScreen } from "./SwapScreen";
 import { AddRecipientSheet } from "./AddRecipientSheet";
 import { CryptoIcon } from "./CryptoIcon";
-import { CRYPTOS, fetchCryptoPricesUSD } from "@/lib/cryptoRates";
+import { WALLET_ASSETS, totalPortfolioValue, WalletAsset } from "@/lib/walletAssets";
+import { timeGreeting } from "@/lib/greeting";
+
 
 
 const iconFor = (cat: string) => {
@@ -43,7 +45,7 @@ interface Props {
   onNotifications: () => void;
 }
 
-type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap" | "addRecipient";
+type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap" | "addRecipient" | "allAssets";
 
 export const WalletHomeScreen = ({ onProfile }: Props) => {
   const { transactions } = useTransactions();
@@ -56,9 +58,10 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [showAllRecipients, setShowAllRecipients] = useState(false);
   const [showAllHistory, setShowAllHistory] = useState(false);
-  const [prices, setPrices] = useState<Record<string, number>>({});
 
-  useEffect(() => { fetchCryptoPricesUSD().then(setPrices); }, []);
+  useEffect(() => { /* assets are mocked locally; no fetch needed */ }, []);
+
+
 
   const displayName = profile?.display_name || (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "there";
 
@@ -101,9 +104,10 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
         </div>
 
         <div className="px-5 pt-3 pb-4">
-          <p className="text-xs text-muted-foreground">Good morning</p>
+          <p className="text-xs text-muted-foreground">{timeGreeting()}</p>
           <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">{displayName}</h1>
         </div>
+
 
 
         {/* Balance Hero */}
