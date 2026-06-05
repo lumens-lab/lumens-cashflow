@@ -161,7 +161,7 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
               { Icon: Send, label: "Transfer", onClick: () => setSheet("transfer"), primary: true },
               { Icon: ArrowDownToLine, label: "Deposit", onClick: () => setSheet("deposit") },
               { Icon: ArrowUpFromLine, label: "Withdraw", onClick: () => setSheet("withdraw") },
-              { Icon: Repeat2, label: "Swap", onClick: () => setSheet("swap") },
+              { Icon: Repeat2, label: "See All", onClick: () => setSheet("allAssets") },
             ].map(({ Icon, label, onClick, primary }) => (
               <button key={label} onClick={onClick} className="flex flex-col items-center gap-2 active:scale-95 transition-transform">
                 <div className={`w-full aspect-square rounded-2xl flex items-center justify-center ${primary ? "gradient-primary-bg shadow-[0_8px_24px_hsl(var(--primary)/0.4)]" : "glass"}`}>
@@ -171,6 +171,7 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
               </button>
             ))}
           </div>
+
         </div>
 
         {/* Recipients */}
