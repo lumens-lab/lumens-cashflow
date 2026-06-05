@@ -226,28 +226,33 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
         {/* Assets */}
         <div className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Assets</h3>
-            <button onClick={() => setSheet("swap")} className="text-[11px] text-primary-glow font-medium">Swap</button>
+            <h3 className="font-syne text-[13px] font-bold uppercase tracking-[0.12em] text-foreground">Crypto Assets</h3>
+            <button onClick={() => setSheet("allAssets")} className="text-[11px] text-primary-glow font-medium">See all</button>
           </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            {CRYPTOS.map((c) => {
-              const usd = prices[c.code] ?? 0;
-              const local = convert(usd, "USD", displayCurrency);
-              return (
-                <button key={c.code} onClick={() => setSheet("deposit")} className="glass rounded-2xl p-3 flex items-center gap-3 active:scale-[0.99] transition-transform text-left">
-                  <CryptoIcon code={c.code} size={36} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-semibold text-foreground truncate">{c.code}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{c.name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-mono-jb text-[12px] font-semibold text-foreground">{usd ? format(local, displayCurrency) : "—"}</p>
-                  </div>
-                </button>
-              );
-            })}
+
+          {/* Portfolio total */}
+          <div className="glass-strong rounded-3xl p-5 mb-3 text-center relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/25 blur-3xl pointer-events-none" />
+            <p className="font-syne text-[11px] uppercase tracking-[0.16em] font-bold text-muted-foreground relative">Total Portfolio Value</p>
+            <p className="font-mono-jb text-[28px] font-bold text-foreground mt-2 tracking-tight relative">
+              {format(totalPortfolioValue(), displayCurrency)}
+            </p>
+          </div>
+
+          {/* Top 3 asset cards */}
+          <div className="space-y-2.5">
+            {WALLET_ASSETS.slice(0, 3).map((a) => (
+              <AssetCard
+                key={a.code}
+                asset={a}
+                format={format}
+                displayCurrency={displayCurrency}
+                onClick={() => setSheet("deposit")}
+              />
+            ))}
           </div>
         </div>
+
 
         {/* Recent Wallet History */}
         <div className="px-5 mt-6">
@@ -289,10 +294,18 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
       {sheet === "withdraw" && <WithdrawSheet onClose={() => setSheet(null)} />}
       {sheet === "swap" && <SwapScreen onClose={() => setSheet(null)} />}
       {sheet === "addRecipient" && <AddRecipientSheet onClose={() => setSheet(null)} />}
+      {sheet === "allAssets" && (
+        <AllAssetsSheet
+          onClose={() => setSheet(null)}
+          format={format}
+          displayCurrency={displayCurrency}
+        />
+      )}
       {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
       {actionFor && (
         <ActionSheet tx={actionFor} onClose={() => setActionFor(null)} onEdit={() => { setEditing(actionFor); setActionFor(null); }} />
       )}
+
     </div>
   );
 };
