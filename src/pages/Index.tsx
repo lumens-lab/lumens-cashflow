@@ -40,9 +40,12 @@ const AppShell = () => {
   const handleNav = (t: Tab) => {
     if (t === "pay") { setPayOpen(true); return; }
     if (t === "wallet") { enterWallet(); return; }
+    // Any other tab leaves the wallet phase and returns to expenses (cashflow).
+    if (phase === "wallet") setPhase("cashflow");
     if (t === "profile") setProfileInitial("main");
     setTab(t);
   };
+
   const goNotifications = () => { setProfileInitial("notifications"); setTab("profile"); };
   const goProfile = () => { setProfileInitial("main"); setTab("profile"); };
 
@@ -87,7 +90,7 @@ const Index = () => (
               <CardsProvider>
                 <PhaseProvider>
                   <main>
-                    <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+                    <h1 className="sr-only">Flow — Cashflow & Wallet</h1>
                     <AppShell />
                   </main>
                 </PhaseProvider>
