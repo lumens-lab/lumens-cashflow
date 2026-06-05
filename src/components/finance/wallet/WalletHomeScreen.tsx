@@ -331,3 +331,71 @@ const ActionSheet = ({ tx, onClose, onEdit }: { tx: Transaction; onClose: () => 
     </div>
   );
 };
+
+interface AssetCardProps {
+  asset: WalletAsset;
+  format: (n: number, c?: string) => string;
+  displayCurrency: string;
+  onClick?: () => void;
+}
+
+const AssetCard = ({ asset, format, displayCurrency, onClick }: AssetCardProps) => {
+  const value = asset.price * asset.balance;
+  const positive = asset.change >= 0;
+  return (
+    <button
+      onClick={onClick}
+      className="w-full glass rounded-2xl p-4 active:scale-[0.99] transition-transform text-left"
+    >
+      <div className="flex items-center gap-3">
+        <CryptoIcon code={asset.code} size={36} />
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold text-foreground truncate">{asset.name}</p>
+          <p className="text-[11px] text-muted-foreground truncate">{asset.code}</p>
+        </div>
+        <span className={`font-mono-jb text-[12px] font-semibold ${positive ? "text-success" : "text-destructive"}`}>
+          {positive ? "+" : ""}{asset.change.toFixed(2)}%
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-foreground/5">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-syne font-bold">Price</p>
+          <p className="font-mono-jb text-[13px] font-semibold text-foreground mt-0.5">{format(asset.price, displayCurrency)}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-syne font-bold">Balance</p>
+          <p className="font-mono-jb text-[13px] font-semibold text-foreground mt-0.5">{asset.balance.toLocaleString()} {asset.code}</p>
+          <p className="font-mono-jb text-[10px] text-muted-foreground mt-0.5">≈ {format(value, displayCurrency)}</p>
+        </div>
+      </div>
+    </button>
+  );
+};
+
+const AllAssetsSheet = ({
+  onClose,
+  format,
+  displayCurrency,
+}: {
+  onClose: () => void;
+  format: (n: number, c?: string) => string;
+  displayCurrency: string;
+}) => {
+  return (
+    <div className="absolute inset-0 z-[70] flex items-end animate-fade-up">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
+      <div className="relative w-full max-h-[90%] glass-strong rounded-t-[32px] p-5 pb-44 overflow-y-auto no-scrollbar">
+        <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-4" />
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-syne text-[16px] font-bold text-foreground">All Crypto Assets</h3>
+          <button onClick={onClose} className="text-[12px] text-muted-foreground">Close</button>
+        </div>
+        <div className="space-y-2.5">
+          {WALLET_ASSETS.map((a) => (
+            <AssetCard key={a.code} asset={a} format={format} displayCurrency={displayCurrency} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
