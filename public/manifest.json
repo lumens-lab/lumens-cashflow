@@ -1,8 +1,8 @@
 {
-  "name": "Lumens — Cashflow & Wallet",
-  "short_name": "Lumens",
-  "description": "Modern glassmorphic finance app: cashflow tracking, wallet, and scan-to-pay.",
-  "start_url": "/",
+  "name": "Flow — Cashflow & Wallet",
+  "short_name": "Flow",
+  "description": "Income & expense tracker with a built-in wallet for FIAT and crypto.",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

@@ -42,14 +42,15 @@ export const AuthScreen = () => {
         <div className="text-center mb-8">
           <h1
             className="text-foreground leading-none mx-auto"
-            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, fontSize: "48px", letterSpacing: "-0.04em" }}
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 900, fontSize: "48px", letterSpacing: "-0.04em", color: "hsl(var(--primary-glow))" }}
           >
-            lumens
+            flow
           </h1>
           <p className="text-[12px] text-muted-foreground mt-3">
             {mode === "signup" ? "Create your account to start tracking" : "Sign in to your account"}
           </p>
         </div>
+
 
         <form onSubmit={submit} className="space-y-3">
           {mode === "signup" && (

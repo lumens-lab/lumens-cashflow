@@ -22,7 +22,7 @@ export const PinSheet = ({ onSuccess, onClose }: Props) => {
 
   const submit = async () => {
     setErr(null);
-    if (!/^\d{4}$/.test(pin)) return setErr("PIN must be 4 digits.");
+    if (!/^\d{5}$/.test(pin)) return setErr("PIN must be 5 digits.");
     if (setup) {
       if (pin !== confirm) return setErr("PINs do not match.");
       const hash = await sha256(`${user?.id}:${pin}`);
@@ -44,25 +44,25 @@ export const PinSheet = ({ onSuccess, onClose }: Props) => {
           <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6 text-primary-glow" />
           </div>
-          <h3 className="font-syne text-[18px] font-bold text-foreground text-center">{setup ? "Set Transaction PIN" : "Enter Transaction PIN"}</h3>
+          <h3 className="font-syne text-[18px] font-bold text-foreground text-center">{setup ? "Set 5-digit PIN" : "Enter your PIN"}</h3>
           <p className="text-[12px] text-muted-foreground text-center">
-            {setup ? "Create a 4-digit PIN to authorise transfers and payments." : "Required for this transaction."}
+            {setup ? "Create a 5-digit PIN to secure your Wallet and authorise payments." : "Required to access your Wallet and authorise this action."}
           </p>
         </div>
 
         <div className="mt-5 space-y-3">
           <input
             inputMode="numeric"
-            maxLength={4}
+            maxLength={5}
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-            placeholder="••••"
+            placeholder="•••••"
             className="w-full glass rounded-2xl px-4 py-4 text-center font-mono-jb text-[28px] tracking-[0.5em] outline-none bg-transparent text-foreground"
           />
           {setup && (
             <input
               inputMode="numeric"
-              maxLength={4}
+              maxLength={5}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value.replace(/\D/g, ""))}
               placeholder="Confirm PIN"
@@ -78,3 +78,4 @@ export const PinSheet = ({ onSuccess, onClose }: Props) => {
     </div>
   );
 };
+

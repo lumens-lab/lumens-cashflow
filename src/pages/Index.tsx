@@ -34,15 +34,19 @@ const AppShell = () => {
       return;
     }
     setPhase("wallet");
-    setTab("home");
+    setTab("wallet");
   };
 
   const handleNav = (t: Tab) => {
     if (t === "pay") { setPayOpen(true); return; }
     if (t === "wallet") { enterWallet(); return; }
+    // Leaving wallet on any other tab returns the user to the expenses phase.
+    if (phase === "wallet") setPhase("cashflow");
     if (t === "profile") setProfileInitial("main");
     setTab(t);
   };
+
+
   const goNotifications = () => { setProfileInitial("notifications"); setTab("profile"); };
   const goProfile = () => { setProfileInitial("main"); setTab("profile"); };
 
@@ -56,9 +60,8 @@ const AppShell = () => {
       ) : (
         <>
           <div className="h-[100dvh] flex flex-col">
-            {tab === "home" && (phase === "wallet"
-              ? <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />
-              : <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} onEnterWallet={enterWallet} />)}
+            {tab === "home" && <HomeScreen onPay={() => setPayOpen(true)} onProfile={goProfile} onNotifications={goNotifications} onEnterWallet={enterWallet} />}
+            {tab === "wallet" && <WalletHomeScreen onProfile={goProfile} onNotifications={goNotifications} />}
             {tab === "cashflow" && <CashflowScreen />}
             {tab === "profile" && <ProfileScreen initialPage={profileInitial} />}
           </div>
@@ -68,9 +71,10 @@ const AppShell = () => {
           {pendingWalletEntry && (
             <PinSheet
               onClose={() => setPendingWalletEntry(false)}
-              onSuccess={() => { setPendingWalletEntry(false); setPhase("wallet"); setTab("home"); }}
+              onSuccess={() => { setPendingWalletEntry(false); setPhase("wallet"); setTab("wallet"); }}
             />
           )}
+
         </>
       )}
     </PhoneFrame>
@@ -87,7 +91,7 @@ const Index = () => (
               <CardsProvider>
                 <PhaseProvider>
                   <main>
-                    <h1 className="sr-only">Lumens — Modern Glassmorphic Finance App</h1>
+                    <h1 className="sr-only">Flow — Cashflow & Wallet</h1>
                     <AppShell />
                   </main>
                 </PhaseProvider>

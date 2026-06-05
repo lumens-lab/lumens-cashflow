@@ -6,6 +6,8 @@ import { PhaseToggle } from "./PhaseToggle";
 import { useMemo, useState } from "react";
 import { AddTransactionModal } from "./AddTransactionModal";
 import { ReceiptScanner, ParsedReceipt } from "./ReceiptScanner";
+import { timeGreeting } from "@/lib/greeting";
+
 
 
 const iconFor = (cat: string) => {
@@ -100,9 +102,10 @@ export const HomeScreen = ({ onPay, onProfile, onNotifications, onEnterWallet }:
         </div>
 
         <div className="px-5 pt-3 pb-4">
-          <p className="text-xs text-muted-foreground">Good morning</p>
+          <p className="text-xs text-muted-foreground">{timeGreeting()}</p>
           <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">{displayName}</h1>
         </div>
+
 
 
         {showReminder && (

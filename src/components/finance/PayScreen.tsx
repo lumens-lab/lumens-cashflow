@@ -12,9 +12,9 @@ type Mode = "scan" | "receive";
 interface ParsedPay { to: string; amount: number; cur?: string; note?: string }
 function parsePayPayload(text: string): ParsedPay | null {
   try {
-    const url = text.startsWith("lumens") ? text : null;
+    const url = /^(flow|lumens):/.test(text) ? text : null;
     if (!url) return { to: text, amount: 0 };
-    const u = new URL(url.replace(/^lumens:\/?\/?/, "https://x/"));
+    const u = new URL(url.replace(/^(flow|lumens):\/?\/?/, "https://x/"));
     const to = u.searchParams.get("to") || "";
     const amount = Number(u.searchParams.get("amt") || u.searchParams.get("amount") || 0);
     const cur = u.searchParams.get("cur") || undefined;
@@ -23,6 +23,7 @@ function parsePayPayload(text: string): ParsedPay | null {
     return { to, amount, cur, note };
   } catch { return { to: text, amount: 0 }; }
 }
+
 
 export const PayScreen = ({ onClose }: { onClose: () => void }) => {
   const [mode, setMode] = useState<Mode>("scan");
@@ -92,7 +93,7 @@ const ScanToPay = () => {
 
       <div className="absolute bottom-[180px] left-0 right-0 text-center px-8">
         <p className="font-syne text-[11px] font-bold uppercase tracking-[0.16em] text-primary-glow">Scan to Pay</p>
-        <p className="text-xs text-muted-foreground mt-1.5">Tap below to open your camera and scan a Lumens QR code</p>
+        <p className="text-xs text-muted-foreground mt-1.5">Tap below to open your camera and scan a Flow QR code</p>
       </div>
 
       <div className="absolute bottom-6 left-0 right-0 px-5">
@@ -101,12 +102,13 @@ const ScanToPay = () => {
             <Camera className="w-4 h-4 text-primary-foreground" />
             <span className="font-syne text-[11px] font-bold uppercase tracking-wider text-primary-foreground">Open Camera</span>
           </button>
-          <button onClick={() => setConfirm({ to: "merchant@lumens", amount: 24.5, note: "Coffee bar" })} className="flex-1 glass rounded-2xl py-3 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+          <button onClick={() => setConfirm({ to: "merchant@flow", amount: 24.5, note: "Coffee bar" })} className="flex-1 glass rounded-2xl py-3 flex items-center justify-center gap-2 active:scale-95 transition-transform">
             <Zap className="w-4 h-4 text-foreground" />
             <span className="font-syne text-[11px] font-bold uppercase tracking-wider text-foreground">Demo</span>
           </button>
         </div>
       </div>
+
 
       {scanning && <QrScanner onClose={() => setScanning(false)} onResult={onScan} />}
 
@@ -146,7 +148,7 @@ const ReceivePane = () => {
   const params = new URLSearchParams({ to: walletId, cur: mainCurrency });
   if (amount) params.set("amt", amount);
   if (note) params.set("note", note);
-  const payload = `lumens://pay?${params.toString()}`;
+  const payload = `flow://pay?${params.toString()}`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(payload);
@@ -182,7 +184,7 @@ const ReceivePane = () => {
           {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4 text-foreground" />}
           <span className="font-syne text-[11px] font-bold uppercase tracking-wider text-foreground">{copied ? "Copied" : "Copy Link"}</span>
         </button>
-        <button onClick={() => navigator.share?.({ title: "Pay me on Lumens", text: `Send to ${walletId}`, url: payload }).catch(() => {})} className="gradient-primary-bg rounded-2xl py-3 flex items-center justify-center gap-2 shadow-[0_8px_24px_hsl(var(--primary)/0.4)] active:scale-95 transition-transform">
+        <button onClick={() => navigator.share?.({ title: "Pay me on Flow", text: `Send to ${walletId}`, url: payload }).catch(() => {})} className="gradient-primary-bg rounded-2xl py-3 flex items-center justify-center gap-2 shadow-[0_8px_24px_hsl(var(--primary)/0.4)] active:scale-95 transition-transform">
           <Share2 className="w-4 h-4 text-primary-foreground" />
           <span className="font-syne text-[11px] font-bold uppercase tracking-wider text-primary-foreground">Share</span>
         </button>

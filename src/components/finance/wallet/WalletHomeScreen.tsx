@@ -12,7 +12,9 @@ import { WithdrawSheet } from "./WithdrawSheet";
 import { SwapScreen } from "./SwapScreen";
 import { AddRecipientSheet } from "./AddRecipientSheet";
 import { CryptoIcon } from "./CryptoIcon";
-import { CRYPTOS, fetchCryptoPricesUSD } from "@/lib/cryptoRates";
+import { WALLET_ASSETS, totalPortfolioValue, WalletAsset } from "@/lib/walletAssets";
+import { timeGreeting } from "@/lib/greeting";
+
 
 
 const iconFor = (cat: string) => {
@@ -43,7 +45,7 @@ interface Props {
   onNotifications: () => void;
 }
 
-type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap" | "addRecipient";
+type Sheet = null | "transfer" | "deposit" | "withdraw" | "swap" | "addRecipient" | "allAssets";
 
 export const WalletHomeScreen = ({ onProfile }: Props) => {
   const { transactions } = useTransactions();
@@ -56,9 +58,10 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [showAllRecipients, setShowAllRecipients] = useState(false);
   const [showAllHistory, setShowAllHistory] = useState(false);
-  const [prices, setPrices] = useState<Record<string, number>>({});
 
-  useEffect(() => { fetchCryptoPricesUSD().then(setPrices); }, []);
+  useEffect(() => { /* assets are mocked locally; no fetch needed */ }, []);
+
+
 
   const displayName = profile?.display_name || (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "there";
 
@@ -101,9 +104,10 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
         </div>
 
         <div className="px-5 pt-3 pb-4">
-          <p className="text-xs text-muted-foreground">Good morning</p>
+          <p className="text-xs text-muted-foreground">{timeGreeting()}</p>
           <h1 className="font-syne text-[22px] font-bold text-foreground mt-0.5">{displayName}</h1>
         </div>
+
 
 
         {/* Balance Hero */}
@@ -157,7 +161,7 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
               { Icon: Send, label: "Transfer", onClick: () => setSheet("transfer"), primary: true },
               { Icon: ArrowDownToLine, label: "Deposit", onClick: () => setSheet("deposit") },
               { Icon: ArrowUpFromLine, label: "Withdraw", onClick: () => setSheet("withdraw") },
-              { Icon: Repeat2, label: "Swap", onClick: () => setSheet("swap") },
+              { Icon: Repeat2, label: "See All", onClick: () => setSheet("allAssets") },
             ].map(({ Icon, label, onClick, primary }) => (
               <button key={label} onClick={onClick} className="flex flex-col items-center gap-2 active:scale-95 transition-transform">
                 <div className={`w-full aspect-square rounded-2xl flex items-center justify-center ${primary ? "gradient-primary-bg shadow-[0_8px_24px_hsl(var(--primary)/0.4)]" : "glass"}`}>
@@ -167,6 +171,7 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
               </button>
             ))}
           </div>
+
         </div>
 
         {/* Recipients */}
@@ -221,28 +226,33 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
         {/* Assets */}
         <div className="px-5 mt-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-syne text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Assets</h3>
-            <button onClick={() => setSheet("swap")} className="text-[11px] text-primary-glow font-medium">Swap</button>
+            <h3 className="font-syne text-[13px] font-bold uppercase tracking-[0.12em] text-foreground">Crypto Assets</h3>
+            <button onClick={() => setSheet("allAssets")} className="text-[11px] text-primary-glow font-medium">See all</button>
           </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            {CRYPTOS.map((c) => {
-              const usd = prices[c.code] ?? 0;
-              const local = convert(usd, "USD", displayCurrency);
-              return (
-                <button key={c.code} onClick={() => setSheet("deposit")} className="glass rounded-2xl p-3 flex items-center gap-3 active:scale-[0.99] transition-transform text-left">
-                  <CryptoIcon code={c.code} size={36} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-semibold text-foreground truncate">{c.code}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{c.name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-mono-jb text-[12px] font-semibold text-foreground">{usd ? format(local, displayCurrency) : "—"}</p>
-                  </div>
-                </button>
-              );
-            })}
+
+          {/* Portfolio total */}
+          <div className="glass-strong rounded-3xl p-5 mb-3 text-center relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/25 blur-3xl pointer-events-none" />
+            <p className="font-syne text-[11px] uppercase tracking-[0.16em] font-bold text-muted-foreground relative">Total Portfolio Value</p>
+            <p className="font-mono-jb text-[28px] font-bold text-foreground mt-2 tracking-tight relative">
+              {format(totalPortfolioValue(), displayCurrency)}
+            </p>
+          </div>
+
+          {/* Top 3 asset cards */}
+          <div className="space-y-2.5">
+            {WALLET_ASSETS.slice(0, 3).map((a) => (
+              <AssetCard
+                key={a.code}
+                asset={a}
+                format={format}
+                displayCurrency={displayCurrency}
+                onClick={() => setSheet("deposit")}
+              />
+            ))}
           </div>
         </div>
+
 
         {/* Recent Wallet History */}
         <div className="px-5 mt-6">
@@ -284,10 +294,18 @@ export const WalletHomeScreen = ({ onProfile }: Props) => {
       {sheet === "withdraw" && <WithdrawSheet onClose={() => setSheet(null)} />}
       {sheet === "swap" && <SwapScreen onClose={() => setSheet(null)} />}
       {sheet === "addRecipient" && <AddRecipientSheet onClose={() => setSheet(null)} />}
+      {sheet === "allAssets" && (
+        <AllAssetsSheet
+          onClose={() => setSheet(null)}
+          format={format}
+          displayCurrency={displayCurrency}
+        />
+      )}
       {editing && <AddTransactionModal initial={editing} onClose={() => setEditing(null)} />}
       {actionFor && (
         <ActionSheet tx={actionFor} onClose={() => setActionFor(null)} onEdit={() => { setEditing(actionFor); setActionFor(null); }} />
       )}
+
     </div>
   );
 };
@@ -309,6 +327,74 @@ const ActionSheet = ({ tx, onClose, onEdit }: { tx: Transaction; onClose: () => 
           <button onClick={() => { deleteTransaction(tx.id); onClose(); }} className="rounded-2xl py-3 bg-destructive/15 text-destructive font-syne font-bold text-[11px] uppercase tracking-wider">Delete</button>
         </div>
         <button onClick={onClose} className="w-full mt-3 py-3 text-[12px] text-muted-foreground">Cancel</button>
+      </div>
+    </div>
+  );
+};
+
+interface AssetCardProps {
+  asset: WalletAsset;
+  format: (n: number, c?: string) => string;
+  displayCurrency: string;
+  onClick?: () => void;
+}
+
+const AssetCard = ({ asset, format, displayCurrency, onClick }: AssetCardProps) => {
+  const value = asset.price * asset.balance;
+  const positive = asset.change >= 0;
+  return (
+    <button
+      onClick={onClick}
+      className="w-full glass rounded-2xl p-4 active:scale-[0.99] transition-transform text-left"
+    >
+      <div className="flex items-center gap-3">
+        <CryptoIcon code={asset.code} size={36} />
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold text-foreground truncate">{asset.name}</p>
+          <p className="text-[11px] text-muted-foreground truncate">{asset.code}</p>
+        </div>
+        <span className={`font-mono-jb text-[12px] font-semibold ${positive ? "text-success" : "text-destructive"}`}>
+          {positive ? "+" : ""}{asset.change.toFixed(2)}%
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-foreground/5">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-syne font-bold">Price</p>
+          <p className="font-mono-jb text-[13px] font-semibold text-foreground mt-0.5">{format(asset.price, displayCurrency)}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-syne font-bold">Balance</p>
+          <p className="font-mono-jb text-[13px] font-semibold text-foreground mt-0.5">{asset.balance.toLocaleString()} {asset.code}</p>
+          <p className="font-mono-jb text-[10px] text-muted-foreground mt-0.5">≈ {format(value, displayCurrency)}</p>
+        </div>
+      </div>
+    </button>
+  );
+};
+
+const AllAssetsSheet = ({
+  onClose,
+  format,
+  displayCurrency,
+}: {
+  onClose: () => void;
+  format: (n: number, c?: string) => string;
+  displayCurrency: string;
+}) => {
+  return (
+    <div className="absolute inset-0 z-[70] flex items-end animate-fade-up">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
+      <div className="relative w-full max-h-[90%] glass-strong rounded-t-[32px] p-5 pb-44 overflow-y-auto no-scrollbar">
+        <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-4" />
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-syne text-[16px] font-bold text-foreground">All Crypto Assets</h3>
+          <button onClick={onClose} className="text-[12px] text-muted-foreground">Close</button>
+        </div>
+        <div className="space-y-2.5">
+          {WALLET_ASSETS.map((a) => (
+            <AssetCard key={a.code} asset={a} format={format} displayCurrency={displayCurrency} />
+          ))}
+        </div>
       </div>
     </div>
   );
