@@ -18,8 +18,12 @@ export const PhaseProvider = ({ children }: { children: ReactNode }) => {
     try { return (localStorage.getItem(KEY) as Phase) || "cashflow"; } catch { return "cashflow"; }
   });
   const [walletPinRequired, setWalletPinRequiredState] = useState<boolean>(() => {
-    try { return localStorage.getItem(PIN_KEY) === "1"; } catch { return false; }
+    try {
+      const v = localStorage.getItem(PIN_KEY);
+      return v === null ? true : v === "1"; // default ON for new users
+    } catch { return true; }
   });
+
   useEffect(() => { localStorage.setItem(KEY, phase); }, [phase]);
   useEffect(() => { localStorage.setItem(PIN_KEY, walletPinRequired ? "1" : "0"); }, [walletPinRequired]);
   return (
